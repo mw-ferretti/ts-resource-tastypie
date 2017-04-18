@@ -1,0 +1,31 @@
+{
+  "name": "ts-resource-tastypie",
+  "version": "1.0.0",
+  "description": "REST Typescript client for Django-Tastypie or equivalent schema.",
+  "main": "./lib/tastypie.js",
+  "types": "./lib/tastypie.d.ts",
+  "dependencies": {
+    "axios": "^0.16.1",
+    "typescript": "^2.2.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mw-ferretti/ts-resource-tastypie.git"
+  },
+  "keywords": [
+    "typescript",
+    "tastypie",
+    "django",
+    "rest"
+  ],
+  "author": "Marcos William Ferretti",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mw-ferretti/ts-resource-tastypie/issues"
+  },
+  "homepage": "https://github.com/mw-ferretti/ts-resource-tastypie#readme"
+}
