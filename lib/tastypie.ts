@@ -108,22 +108,21 @@ export namespace Tastypie {
         private _endpoint: string;        
         private _provider: string;
         private _defaults: {};
-        public objects:TastypieObjects = new TastypieObjects(this);
+        private _objects:Objects = new Objects(this);
 
-        constructor(endpoint: string, p: {defaults?: {}, provider?: string}){
+        constructor(endpoint: string, p?: {defaults?: {}, provider?: string}){
             this._endpoint = endpoint;
-            this._defaults = p.defaults || {};
-            this._provider = p.provider;
+            
+            if(p){
+                this._defaults = p.defaults || {};
+                this._provider = p.provider;
+            }
         }
         
         get endpoint(): string {
             return this._endpoint+'/';
         }
-        
-        get defaults(): {} {
-            return this._defaults;
-        }
-        
+            
         get provider(): Provider {
             if(!this._provider){
                 return Provider.getDefault();
@@ -131,16 +130,24 @@ export namespace Tastypie {
                 return Provider.get(this._provider);
             }
         }
+        
+        get defaults(): {} {
+            return this._defaults;
+        }
+        
+        get objects(): Objects {
+            return this._objects;
+        }
     }
     
-    export class TastypieObjects {
+    export class Objects {
         private _resource: Resource;
                 
         constructor(p:Resource){
             this._resource = p;
         }
         
-        public get(id:number, params?:{}): Promise<any> {
+        public get(id:number, params?:any): Promise<any> {
             return axios({
               method:'get',
               url: '/'+this._resource.endpoint+id+'/',
@@ -149,17 +156,17 @@ export namespace Tastypie {
               params: params,
               headers: this._resource.provider.headers
             }).then(
-                function(result){
+                function(result: any){
                     return result.data;
                 }
             ).catch(
-                function(error){
-                    return Promise.reject('[tastypieObjects][get] '+error);
+                function(error: any){
+                    return Promise.reject('[TastypieObjects][get] '+error);
                 }
             );
         }
         
-        public delete(id:number, params?:{}): Promise<any> {
+        public delete(id:number, params?:any): Promise<any> {
             return axios({
               method:'delete',
               url: '/'+this._resource.endpoint+id+'/',
@@ -168,17 +175,17 @@ export namespace Tastypie {
               params: params,
               headers: this._resource.provider.headers
             }).then(
-                function(result){
+                function(result: any){
                     return result.data;
                 }
             ).catch(
-                function(error){
-                    return Promise.reject('[tastypieObjects][delete] '+error);
+                function(error: any){
+                    return Promise.reject('[TastypieObjects][delete] '+error);
                 }
             );
         }
         
-        public update(id:number, data:{}): Promise<any> {
+        public update(id:number, data:any): Promise<any> {
             return axios({
               method:'patch',
               url: '/'+this._resource.endpoint+id+'/',
@@ -187,14 +194,22 @@ export namespace Tastypie {
               data: data,
               headers: this._resource.provider.headers
             }).then(
-                function(result){
+                function(result: any){
                     return result.data;
                 }
             ).catch(
-                function(error){
-                    return Promise.reject('[tastypieObjects][update] '+error);
+                function(error: any){
+                    return Promise.reject('[TastypieObjects][update] '+error);
                 }
             );
+        }
+        
+        public save(data:any): Promise<any> {
+            if(data.id){
+                return this.update(data.id, data); 
+            }else{
+                return this.create(data);
+            }
         }
         
         public create(data: {}): Promise<any> {
@@ -211,33 +226,33 @@ export namespace Tastypie {
                 }
             ).catch(
                 function(error){
-                    return Promise.reject('[tastypieObjects][create] '+error);
+                    return Promise.reject('[TastypieObjects][create] '+error);
                 }
             );
         }
         
-        public find(filter?: {}): Promise<TastypiePaginator> {
-            var self = this;                    
+        public find(filter?: {}): Promise<Paginator> {
+            let _self = this;                    
             return axios({
               method:'get',
-              url: '/'+this._resource.endpoint,
-              baseURL: this._resource.provider.url,
+              url: '/'+_self._resource.endpoint,
+              baseURL: _self._resource.provider.url,
               responseType:'json',
-              params: Tools.merge_obj(self._resource.defaults, filter),
-              headers: this._resource.provider.headers
+              params: Tools.merge_obj(_self._resource.defaults, filter),
+              headers: _self._resource.provider.headers
             }).then(
                 function(result){
-                    return new TastypiePaginator(self._resource, result.data, filter);
+                    return new Paginator(_self._resource, result.data, filter);
                 }
             ).catch(
                 function(error){
-                    return Promise.reject('[tastypieObjects][find] '+error);
+                    return Promise.reject('[TastypieObjects][find] '+error);
                 }
             );
         }
     }
     
-    export class TastypiePaginator {
+    export class Paginator {
         private _resource: Resource;
         private _meta: any;
         private _objects: Array<any>;
@@ -251,7 +266,7 @@ export namespace Tastypie {
             this._defaults = filters || {};
 
             if(obj){
-                this.setPage(obj);
+                this.setPage(this, obj);
             }
         }
         
@@ -275,106 +290,155 @@ export namespace Tastypie {
             return this._range;
         }
         
-        private setPage(result:{meta:any; objects:Array<any>}): void {
-            this._meta = result.meta;
+        private setPage(_self:Paginator, result:{meta:any; objects:Array<any>}): void {
+            _self._meta = result.meta;
 
-            this._objects = result.objects;
-            this._length = Math.ceil(result.meta.total_count / result.meta.limit);
+            _self._objects = result.objects;
+            _self._length = Math.ceil(result.meta.total_count / result.meta.limit);
 
-            if (result.meta.offset == 0) this._index = 1;
-            else this._index  = (Math.ceil(result.meta.offset / result.meta.limit)+1);
+            if (result.meta.offset == 0) _self._index = 1;
+            else _self._index  = (Math.ceil(result.meta.offset / result.meta.limit)+1);
 
             var pgs = [];
-            for (var i=1;i<=this.length;i++) {pgs.push(i);}
-            this._range = pgs;
+            for (var i=1;i<=_self.length;i++) {pgs.push(i);}
+            _self._range = pgs;
         }
         
-        private getPage(url: string): Promise<TastypiePaginator> {
-            let self = this;
+        private getPage(_self:Paginator, url: string): Promise<Paginator> {
             return axios({
               method:'get',
               url: url,
               responseType:'json',
-              headers: this._resource.provider.headers
+              headers: _self._resource.provider.headers
             }).then(
                 function(result){
-                    self.setPage(result.data);
-                    return self;
+                    _self.setPage(_self, result.data);
+                    return _self;
                 }
             ).catch(
                 function(error){
-                    return Promise.reject('[tastypiePaginator][getPage] '+error);
+                    return Promise.reject('[TastypiePaginator][getPage] '+error);
                 }
             );
         }
         
-        private changePage(index:number, update:boolean): Promise<TastypiePaginator> {
-            if((index == this.index) && (!update)){
-                return Promise.reject('[tastypiePaginator][changePage] Index '+index+' has already been loaded.');
+        private changePage(_self:Paginator, index:number, update:boolean): Promise<Paginator> {
+            if((index == _self.index) && (!update)){
+                return Promise.reject('[TastypiePaginator][changePage] Index '+index+' has already been loaded.');
             }
             
-            if ((index > 0) && (index <= this.length)) {            
+            if ((index > 0) && (index <= _self.length)) {            
 
-                let filters = Tools.merge_obj(this._resource.defaults, this._defaults);
-                filters['offset'] = ((index-1)*this.meta.limit);
-                
-                let self = this;
+                let filters = Tools.merge_obj(_self._resource.defaults, _self._defaults);
+                filters['offset'] = ((index-1)*_self.meta.limit);
+    
                 return axios({
                   method:'get',
-                  url: this._resource.endpoint,
+                  url: _self._resource.endpoint,
                   responseType:'json',
                   params:filters,
-                  headers: this._resource.provider.headers
+                  headers: _self._resource.provider.headers
                 }).then(
                     function(result){
                         if(result.data.meta.offset == result.data.meta.total_count) {                        
                             if((index - 1) == 0){
-                                self.setPage(result.data);
-                                return self;
+                                _self.setPage(_self, result.data);
+                                return _self;
                             }else{
-                                return self.changePage((index - 1), true);
+                                return _self.changePage(_self, (index - 1), true);
                             }
                         }else{
-                            self.setPage(result.data);
-                            return self;
+                            _self.setPage(_self, result.data);
+                            return _self;
                         }
                     }
                 );
             }else{           
-                return Promise.reject('[tastypiePaginator][changePage] Index '+index+' not exist.');
+                return Promise.reject('[TastypiePaginator][changePage] Index '+index+' not exist.');
             }
         }    
         
-        public change(index: number): Promise<TastypiePaginator> {
-            return this.changePage(index, false);
+        public change(index: number): Promise<Paginator> {
+            return this.changePage(this, index, false);
         }
         
-        public next(): Promise<TastypiePaginator> {
+        public next(): Promise<Paginator> {
             if(this.meta.next){
-                return this.getPage(this._resource.provider.domain + this.meta.next);
+                return this.getPage(this, this._resource.provider.domain + this.meta.next);
             }else{
-                return Promise.reject('[tastypiePaginator][next] Not exist next pages.');
+                return Promise.reject('[TastypiePaginator][next] Not exist next pages.');
             }
         }
         
-        public previous(): Promise<TastypiePaginator> {
+        public previous(): Promise<Paginator> {
             if(this.meta.previous){
-                return this.getPage(this._resource.provider.domain + this.meta.previous);
+                return this.getPage(this, this._resource.provider.domain + this.meta.previous);
             }else{
-                return Promise.reject('[tastypiePaginator][previous] Not exist previous pages.');
+                return Promise.reject('[TastypiePaginator][previous] Not exist previous pages.');
             }
         }
         
-        public refresh(): Promise<TastypiePaginator> {
-            return this.changePage(this.index, true);
+        public refresh(): Promise<Paginator> {
+            return this.changePage(this, this.index, true);
         }
         
-        public first(): Promise<TastypiePaginator> {
-            return this.changePage(1, false);
+        public first(): Promise<Paginator> {
+            return this.changePage(this, 1, false);
         }
         
-        public last(): Promise<TastypiePaginator> {
-            return this.changePage(this.length, false);
+        public last(): Promise<Paginator> {
+            return this.changePage(this, this.length, false);
         }        
     }
+    
+    export interface IModel {
+        id:number;
+        save():Promise<any>;
+    }
+
+    export class Model<T> implements IModel{
+        private _resource: Resource;
+        public id:number;
+
+        public save(obj?:any): Promise<T> {  
+            let _self = this;
+            let to_save = (obj || _self.getData());
+            return _self._resource.objects.save(to_save).then(
+                function(r: any){
+                    _self.setData(r);
+                    return _self;
+                }
+            );
+        }
+
+        constructor(resource:Resource, _obj?:any){
+            this._resource = resource;
+            
+            if(_obj){
+                this.setData(_obj);
+            }
+        }
+                
+        public getData(): any{            
+            let _self: any = <{}> this; 
+            let selflist: any = {};            
+            for(let attrname in _self){                
+                if(typeof _self[attrname] !== 'function'){
+                    if(String(attrname).charAt(0) != '_'){
+                        selflist[attrname] = _self[attrname];
+                    }
+                } 
+            }            
+            return selflist;
+        }
+        
+        public setData(toself: any): void{
+            let _self = this;
+            for(let attrname in toself){
+                _self[attrname] = toself[attrname];
+
+            }
+        }
+    }
+    
 }

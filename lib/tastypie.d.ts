@@ -28,25 +28,27 @@ export declare namespace Tastypie {
         private _endpoint;
         private _provider;
         private _defaults;
-        objects: TastypieObjects;
-        constructor(endpoint: string, p: {
+        private _objects;
+        constructor(endpoint: string, p?: {
             defaults?: {};
             provider?: string;
         });
         readonly endpoint: string;
-        readonly defaults: {};
         readonly provider: Provider;
+        readonly defaults: {};
+        readonly objects: Objects;
     }
-    class TastypieObjects {
+    class Objects {
         private _resource;
         constructor(p: Resource);
-        get(id: number, params?: {}): Promise<any>;
-        delete(id: number, params?: {}): Promise<any>;
-        update(id: number, data: {}): Promise<any>;
+        get(id: number, params?: any): Promise<any>;
+        delete(id: number, params?: any): Promise<any>;
+        update(id: number, data: any): Promise<any>;
+        save(data: any): Promise<any>;
         create(data: {}): Promise<any>;
-        find(filter?: {}): Promise<TastypiePaginator>;
+        find(filter?: {}): Promise<Paginator>;
     }
-    class TastypiePaginator {
+    class Paginator {
         private _resource;
         private _meta;
         private _objects;
@@ -60,14 +62,26 @@ export declare namespace Tastypie {
         readonly index: number;
         readonly length: number;
         readonly range: Array<number>;
-        private setPage(result);
-        private getPage(url);
-        private changePage(index, update);
-        change(index: number): Promise<TastypiePaginator>;
-        next(): Promise<TastypiePaginator>;
-        previous(): Promise<TastypiePaginator>;
-        refresh(): Promise<TastypiePaginator>;
-        first(): Promise<TastypiePaginator>;
-        last(): Promise<TastypiePaginator>;
+        private setPage(_self, result);
+        private getPage(_self, url);
+        private changePage(_self, index, update);
+        change(index: number): Promise<Paginator>;
+        next(): Promise<Paginator>;
+        previous(): Promise<Paginator>;
+        refresh(): Promise<Paginator>;
+        first(): Promise<Paginator>;
+        last(): Promise<Paginator>;
+    }
+    interface IModel {
+        id: number;
+        save(): Promise<any>;
+    }
+    class Model<T> implements IModel {
+        private _resource;
+        id: number;
+        save(obj?: any): Promise<T>;
+        constructor(resource: Resource, _obj?: any);
+        getData(): any;
+        setData(toself: any): void;
     }
 }
