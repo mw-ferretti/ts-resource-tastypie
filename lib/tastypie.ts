@@ -22,6 +22,11 @@ export namespace Tastypie {
             for (let attrname in obj2) { obj3[attrname] = obj2[attrname]; }
             return obj3;
         }
+        
+        public static generate_exception(msg:string): Promise<any> {
+            if (typeof(console) == "object") console.log(msg);
+            return Promise.reject(msg);
+        }
     }
 
     export class Provider {        
@@ -80,7 +85,7 @@ export namespace Tastypie {
             }
             
             if(!ret){
-                throw new TypeError("Provider "+name+" not found.");
+                throw new TypeError("[TastypieProvider][get] Provider "+name+" not found.");
             }
             
             return ret;
@@ -98,24 +103,26 @@ export namespace Tastypie {
         public static getDefault(): Provider {
             
             if(!this._default_provider){
-                throw new TypeError("No registered provider.");
+                throw new TypeError("[TastypieProvider][getDefault] No registered provider.");
             }
             return this._default_provider;
         }
     }
 
-    export class Resource {
+    export class Resource<T> {
         private _endpoint: string;        
         private _provider: string;
-        private _defaults: {};
-        private _objects:Objects = new Objects(this);
+        private _defaults: any;
+        private _model: any;
+        private _objects:Objects<T> = new Objects<T>(this);
 
-        constructor(endpoint: string, p?: {defaults?: {}, provider?: string}){
+        constructor(endpoint: string, p?: {defaults?: any, provider?: string, model?: any}){
             this._endpoint = endpoint;
-            
+
             if(p){
                 this._defaults = p.defaults || {};
                 this._provider = p.provider;
+                this._model = p.model;
             }
         }
         
@@ -131,80 +138,131 @@ export namespace Tastypie {
             }
         }
         
-        get defaults(): {} {
+        get defaults(): any {
             return this._defaults;
         }
         
-        get objects(): Objects {
+        get model(): any {
+            return this._model;
+        }
+        
+        get objects(): Objects<T> {
             return this._objects;
         }
     }
     
-    export class Objects {
-        private _resource: Resource;
+    export class Objects<T> {
+        private _resource: Resource<T>;
                 
-        constructor(p:Resource){
+        constructor(p:Resource<T>){
             this._resource = p;
         }
         
-        public get(id:number, params?:any): Promise<any> {
+        public get(id:number, params?:any): Promise<T> {
+            let _self = this;
             return axios({
               method:'get',
-              url: '/'+this._resource.endpoint+id+'/',
-              baseURL: this._resource.provider.url,
+              url: '/'+_self._resource.endpoint+id+'/',
+              baseURL: _self._resource.provider.url,
               responseType:'json',
               params: params,
-              headers: this._resource.provider.headers
+              headers: _self._resource.provider.headers
             }).then(
                 function(result: any){
-                    return result.data;
+                    if(_self._resource.model){
+                        let _obj = new _self._resource.model();
+                        _obj.setData(result.data);
+                        return _obj;
+                    }else{
+                        return result.data;
+                    }                    
                 }
             ).catch(
                 function(error: any){
-                    return Promise.reject('[TastypieObjects][get] '+error);
+                    return Tools.generate_exception('[TastypieObjects][get] '+error);
                 }
             );
         }
         
-        public delete(id:number, params?:any): Promise<any> {
+        public delete(id:number, params?:any): Promise<T> {
+            let _self = this;
             return axios({
               method:'delete',
-              url: '/'+this._resource.endpoint+id+'/',
-              baseURL: this._resource.provider.url,
+              url: '/'+_self._resource.endpoint+id+'/',
+              baseURL: _self._resource.provider.url,
               responseType:'json',
               params: params,
-              headers: this._resource.provider.headers
+              headers: _self._resource.provider.headers
             }).then(
                 function(result: any){
-                    return result.data;
+                    if(_self._resource.model){
+                        let _obj = new _self._resource.model();
+                        _obj.setData(result.data);
+                        return _obj;
+                    }else{
+                        return result.data;
+                    } 
                 }
             ).catch(
                 function(error: any){
-                    return Promise.reject('[TastypieObjects][delete] '+error);
+                    return Tools.generate_exception('[TastypieObjects][delete] '+error);
                 }
             );
         }
         
-        public update(id:number, data:any): Promise<any> {
+        public update(id:number, data:any): Promise<T> {
+            let _self = this;
             return axios({
               method:'patch',
-              url: '/'+this._resource.endpoint+id+'/',
-              baseURL: this._resource.provider.url,
+              url: '/'+_self._resource.endpoint+id+'/',
+              baseURL: _self._resource.provider.url,
               responseType:'json',
               data: data,
-              headers: this._resource.provider.headers
+              headers: _self._resource.provider.headers
             }).then(
                 function(result: any){
-                    return result.data;
+                    if(_self._resource.model){
+                        let _obj = new _self._resource.model();
+                        _obj.setData(result.data);
+                        return _obj;
+                    }else{
+                        return result.data;
+                    }
                 }
             ).catch(
                 function(error: any){
-                    return Promise.reject('[TastypieObjects][update] '+error);
+                    return Tools.generate_exception('[TastypieObjects][update] '+error);
                 }
             );
         }
         
-        public save(data:any): Promise<any> {
+        public create(data: {}): Promise<any> {
+            let _self = this;
+            return axios({
+              method:'post',
+              url: '/'+_self._resource.endpoint,
+              baseURL: _self._resource.provider.url,
+              responseType:'json',
+              data: data,
+              headers: _self._resource.provider.headers
+            }).then(
+                function(result: any){
+                    if(_self._resource.model){
+                        let _obj = new _self._resource.model();
+                        _obj.setData(result.data);
+                        return _obj;
+                    }else{
+                        return result.data;
+                    } 
+                }
+            ).catch(
+                function(error: any){
+                    return Tools.generate_exception('[TastypieObjects][create] '+error);
+                }
+            );
+        }
+        
+        public save(data:any): Promise<T> {
             if(data.id){
                 return this.update(data.id, data); 
             }else{
@@ -212,26 +270,7 @@ export namespace Tastypie {
             }
         }
         
-        public create(data: {}): Promise<any> {
-            return axios({
-              method:'post',
-              url: '/'+this._resource.endpoint,
-              baseURL: this._resource.provider.url,
-              responseType:'json',
-              data: data,
-              headers: this._resource.provider.headers
-            }).then(
-                function(result){
-                    return result.data;
-                }
-            ).catch(
-                function(error){
-                    return Promise.reject('[TastypieObjects][create] '+error);
-                }
-            );
-        }
-        
-        public find(filter?: {}): Promise<Paginator> {
+        public find(filter?: {}): Promise<Paginator<T>> {
             let _self = this;                    
             return axios({
               method:'get',
@@ -241,29 +280,30 @@ export namespace Tastypie {
               params: Tools.merge_obj(_self._resource.defaults, filter),
               headers: _self._resource.provider.headers
             }).then(
-                function(result){
-                    return new Paginator(_self._resource, result.data, filter);
+                function(result: any){
+                    return new Paginator<T>(_self._resource, result.data, filter);
                 }
             ).catch(
-                function(error){
-                    return Promise.reject('[TastypieObjects][find] '+error);
+                function(error: any){
+                    return Tools.generate_exception('[TastypieObjects][find] '+error);
                 }
             );
         }
     }
     
-    export class Paginator {
-        private _resource: Resource;
+    export class Paginator<T> {
+        private _resource: Resource<T>;
         private _meta: any;
-        private _objects: Array<any>;
+        private _objects: Array<T>;
         private _index: number;
         private _length: number;
         private _range: Array<number>;
         private _defaults: any;
                 
-        constructor(p:Resource, obj?:any, filters?:any) {
+        constructor(p:Resource<T>, obj?:any, filters?:any) {
             this._resource = p;
             this._defaults = filters || {};
+            this._objects = [];
 
             if(obj){
                 this.setPage(this, obj);
@@ -274,7 +314,7 @@ export namespace Tastypie {
             return this._meta;
         }
         
-        get objects(): Array<{}> {
+        get objects(): Array<T> {
             return this._objects;
         }
         
@@ -290,41 +330,50 @@ export namespace Tastypie {
             return this._range;
         }
         
-        private setPage(_self:Paginator, result:{meta:any; objects:Array<any>}): void {
+        private setPage(_self:Paginator<T>, result:{meta:any; objects:Array<any>}): void {
             _self._meta = result.meta;
 
-            _self._objects = result.objects;
+            if(_self._resource.model){
+                for (let ix1=0; ix1<result.objects.length; ix1++) {
+                    let _obj = new _self._resource.model();                    
+                    _obj.setData(result.objects[ix1]);
+                    _self._objects.push(_obj);
+                }
+            }else{
+                _self._objects = result.objects;
+            }
+            
             _self._length = Math.ceil(result.meta.total_count / result.meta.limit);
 
             if (result.meta.offset == 0) _self._index = 1;
             else _self._index  = (Math.ceil(result.meta.offset / result.meta.limit)+1);
 
             var pgs = [];
-            for (var i=1;i<=_self.length;i++) {pgs.push(i);}
+            for (let ix2=1;ix2<=_self.length;ix2++) {pgs.push(ix2);}
             _self._range = pgs;
         }
         
-        private getPage(_self:Paginator, url: string): Promise<Paginator> {
+        private getPage(_self:Paginator<T>, url: string): Promise<Paginator<T>> {
             return axios({
               method:'get',
               url: url,
               responseType:'json',
               headers: _self._resource.provider.headers
             }).then(
-                function(result){
+                function(result: any){
                     _self.setPage(_self, result.data);
                     return _self;
                 }
             ).catch(
-                function(error){
-                    return Promise.reject('[TastypiePaginator][getPage] '+error);
+                function(error: any){
+                    return Tools.generate_exception('[TastypiePaginator][getPage] '+error);
                 }
             );
         }
         
-        private changePage(_self:Paginator, index:number, update:boolean): Promise<Paginator> {
+        private changePage(_self:Paginator<T>, index:number, update:boolean): Promise<Paginator<T>> {
             if((index == _self.index) && (!update)){
-                return Promise.reject('[TastypiePaginator][changePage] Index '+index+' has already been loaded.');
+                return Tools.generate_exception('[TastypiePaginator][changePage] Index '+index+' has already been loaded.');
             }
             
             if ((index > 0) && (index <= _self.length)) {            
@@ -339,7 +388,7 @@ export namespace Tastypie {
                   params:filters,
                   headers: _self._resource.provider.headers
                 }).then(
-                    function(result){
+                    function(result: any){
                         if(result.data.meta.offset == result.data.meta.total_count) {                        
                             if((index - 1) == 0){
                                 _self.setPage(_self, result.data);
@@ -352,41 +401,45 @@ export namespace Tastypie {
                             return _self;
                         }
                     }
+                ).catch(
+                    function(error){
+                        return Tools.generate_exception('[TastypiePaginator][changePage] '+error);
+                    }
                 );
-            }else{           
-                return Promise.reject('[TastypiePaginator][changePage] Index '+index+' not exist.');
+            }else{      
+                return Tools.generate_exception('[TastypiePaginator][changePage] Index '+index+' not exist.');
             }
         }    
         
-        public change(index: number): Promise<Paginator> {
+        public change(index: number): Promise<Paginator<T>> {
             return this.changePage(this, index, false);
         }
         
-        public next(): Promise<Paginator> {
+        public next(): Promise<Paginator<T>> {
             if(this.meta.next){
                 return this.getPage(this, this._resource.provider.domain + this.meta.next);
             }else{
-                return Promise.reject('[TastypiePaginator][next] Not exist next pages.');
+                return Tools.generate_exception('[TastypiePaginator][next] Not exist next pages.');
             }
         }
         
-        public previous(): Promise<Paginator> {
+        public previous(): Promise<Paginator<T>> {
             if(this.meta.previous){
                 return this.getPage(this, this._resource.provider.domain + this.meta.previous);
             }else{
-                return Promise.reject('[TastypiePaginator][previous] Not exist previous pages.');
+                return Tools.generate_exception('[TastypiePaginator][previous] Not exist previous pages.');
             }
         }
         
-        public refresh(): Promise<Paginator> {
+        public refresh(): Promise<Paginator<T>> {
             return this.changePage(this, this.index, true);
         }
         
-        public first(): Promise<Paginator> {
+        public first(): Promise<Paginator<T>> {
             return this.changePage(this, 1, false);
         }
         
-        public last(): Promise<Paginator> {
+        public last(): Promise<Paginator<T>> {
             return this.changePage(this, this.length, false);
         }        
     }
@@ -397,7 +450,7 @@ export namespace Tastypie {
     }
 
     export class Model<T> implements IModel{
-        private _resource: Resource;
+        private _resource: Resource<T>;
         public id:number;
 
         public save(obj?:any): Promise<T> {  
@@ -406,12 +459,12 @@ export namespace Tastypie {
             return _self._resource.objects.save(to_save).then(
                 function(r: any){
                     _self.setData(r);
-                    return _self;
+                    return r;
                 }
             );
         }
 
-        constructor(resource:Resource, _obj?:any){
+        constructor(resource:Resource<T>, _obj?:any){
             this._resource = resource;
             
             if(_obj){
