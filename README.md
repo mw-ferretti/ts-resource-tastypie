@@ -109,16 +109,6 @@ class myClassModel extends api.Tastypie.Model<myClassModel> {
 }
 
 //Usage:
-//At this moment we no longer work with generic objects. Works with instances of your class that has been defined.
-
-myClassModel.resource.objects.create(data: any); //return Promise<myClassModel> 
-myClassModel.resource.objects.update(id :number, data: any); //return Promise<myClassModel>
-myClassModel.resource.objects.save(data: any); //return Promise<myClassModel>
-myClassModel.resource.objects.delete(id: number); //return Promise<myClassModel>
-myClassModel.resource.objects.get(id: number); //return Promise<myClassModel>
-myClassModel.resource.objects.find(data: any); //return Promise<page>
-
-//Ex:
 
 let myObj = new myClassModel({myAttr1: 'foo', myAttr2: 'bar'})
 myObj.save()
@@ -128,11 +118,22 @@ myObj.myAttr1 = 'foo'
 myObj.myAttr2 = 'bar'
 myObj.save()
 
-serviceName.objects.find(data: any).then(
+//At this moment we no longer work with generic objects. Works with instances of your class that has been defined.
+
+myClassModel.resource.objects.create(data: any); //return Promise<myClassModel> 
+myClassModel.resource.objects.update(id :number, data: any); //return Promise<myClassModel>
+myClassModel.resource.objects.save(data: any); //return Promise<myClassModel>
+myClassModel.resource.objects.delete(id: number); //return Promise<myClassModel>
+myClassModel.resource.objects.get(id: number); //return Promise<myClassModel>
+myClassModel.resource.objects.find(data: any); //return Promise<page>
+
+myClassModel.objects.find(data: any).then(
     function(page){
         //page.objects :Array<myClassModel>
     }
 )
+
+
 
 ```
 ## Making queries
