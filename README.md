@@ -140,7 +140,7 @@ myClassModel.resource.objects.find(data: any).then(
 
 ```
 > Important
-> For good practice, attributes that start the name with "_" are considered local. Therefore, these attributes will not be sent to the backend.
+For good practice, attributes that start the name with "_" are considered local. Therefore, these attributes will not be sent to the backend.
 If you decide to change this logic, you can override the save method whenever you need it.
 
 > Override the save method 
