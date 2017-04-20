@@ -118,12 +118,13 @@ class myClassModel extends api.Tastypie.Model<myClassModel> {
 
 Usage:
 ```typescript
-let myObj = new myClassModel({myAttr1: 'foo', myAttr2: 'bar'})
+let myObj = new myClassModel({myAttr1: 'foo', myAttr2: 200, myAttr3: 'bar'})
 myObj.save()
 
 let myObj = new myClassModel()
 myObj.myAttr1 = 'foo'
-myObj.myAttr2 = 'bar'
+myObj.myAttr2 = 200
+myObj.myAttr3 = 'bar'
 myObj.save()
 
 //At this moment we no longer work with generic objects. 
