@@ -126,7 +126,7 @@ myClassModel.resource.objects.delete(id: number); //return Promise<myClassModel>
 myClassModel.resource.objects.get(id: number); //return Promise<myClassModel>
 myClassModel.resource.objects.find(data: any); //return Promise<page>
 
-myClassModel.objects.find(data: any).then(
+myClassModel.resource.objects.find(data: any).then(
     function(page){
         //page.objects :Array<myClassModel>
     }
