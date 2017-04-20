@@ -114,7 +114,10 @@ class myClassModel extends api.Tastypie.Model<myClassModel> {
     }
 }
 
-//Usage:
+```
+
+Usage:
+```typescript
 let myObj = new myClassModel({myAttr1: 'foo', myAttr2: 'bar'})
 myObj.save()
 
