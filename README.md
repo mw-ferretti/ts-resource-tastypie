@@ -139,6 +139,34 @@ myClassModel.resource.objects.find(data: any).then(
 )
 
 ```
+> Important
+> For good practice, attributes that start the name with "_" are considered local. Therefore, these attributes will not be sent to the backend.
+If you decide to change this logic, you can override the save method whenever you need it.
+
+> Override the save method 
+```typescript
+class myClassModel extends api.Tastypie.Model<myClassModel> {
+    public static resource = new api.Tastypie.Resource<myClassModel>('serviceName', {model: myClassModel});
+    
+    public myAttr1: string;
+    public myAttr2: number;
+    public _myAttr3: string; //By default, this attribute will not be sent to the backend.
+    private _myAttr4: string; //By default, this attribute will not be sent to the backend.
+    
+    constructor(obj?:any){
+        super(myClassModel.resource, obj);
+    }
+    
+    public save(): Promise<myClassModel> {
+        return super.save({
+            myAttr1: this.myAttr1,
+            myAttr2: this.myAttr2,
+            _myAttr3: this._myAttr3,
+            _myAttr4: this._myAttr4
+        });
+    }
+}
+```
 
 ## Making queries
 > Documentation in development ...
