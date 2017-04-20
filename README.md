@@ -22,7 +22,7 @@ BENEFITS:
 > - And more ...
 
 ## Requirements
-- Backend:  [Django-Tastypie](https://django-tastypie.readthedocs.org/en/latest/) or equivalent schema.
+> - Backend:  [Django-Tastypie](https://django-tastypie.readthedocs.org/en/latest/) or equivalent schema.
 
 Note
 > Requirements for the backend:
