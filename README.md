@@ -77,8 +77,8 @@ import * as api from "ts-resource-tastypie";
 
 api.Tastypie.Provider.add(
     new api.Tastypie.Provider({name:'provider1', url:'http://address1/api/v1/', username:'admin', apikey:'123'}),
-    new api.Tastypie.Provider({name:'provider2', url:'http://address2/api/v1/'),
-    new api.Tastypie.Provider({name:'provider3', url:'http://address3/api/v1/')
+    new api.Tastypie.Provider({name:'provider2', url:'http://address2/api/v1/'}),
+    new api.Tastypie.Provider({name:'provider3', url:'http://address3/api/v1/'})
 );
 
 api.Tastypie.Provider.setDefault('provider3');
