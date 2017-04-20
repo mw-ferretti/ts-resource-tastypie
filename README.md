@@ -127,7 +127,7 @@ myObj.myAttr2 = 200
 myObj.myAttr3 = 'bar'
 myObj.save()
 
-//At this moment we no longer work with generic objects. 
+//At this moment we no work with generic objects.
 //Works with instances of your class that has been defined.
 myClassModel.resource.objects.create(data: any); //return Promise<myClassModel> 
 myClassModel.resource.objects.update(id :number, data: any); //return Promise<myClassModel>
