@@ -6,6 +6,7 @@ Features:
 > - Complete CRUD
 > - Abstract AJAX(J) providing operations which are similar to the [Django Model API](https://docs.djangoproject.com/en/dev/topics/db/queries/)
 
+
 ## Context
 [RESTful](http://www.ibm.com/developerworks/library/ws-restful/) architecture with [TypeScript](https://www.typescriptlang.org/) and [Django](https://www.djangoproject.com/).
 
@@ -21,13 +22,16 @@ BENEFITS:
 > - Business rules are the same for different types of [UI](https://en.wikipedia.org/wiki/User_interface). We can create different [UIs](https://en.wikipedia.org/wiki/User_interface) with any other programming language, passing through the same business rules on the backend.
 > - And more ...
 
+
 ## Requirements for the backend:
 > - [Django-Tastypie](https://django-tastypie.readthedocs.org/en/latest/) or equivalent schema.
 > - [django-cors-headers](https://github.com/ottoyiu/django-cors-headers)
 > - [always_return_data](http://django-tastypie.readthedocs.org/en/latest/resources.html#always-return-data)
 
+
 ## Install
 > npm i ts-resource-tastypie
+
 
 ## Basic Usage
 ```typescript
@@ -71,6 +75,7 @@ serviceName.objects.find(data: any).then(
 
 ```
 
+
 ## Multiple Provider Usage
 ```typescript
 import * as api from "ts-resource-tastypie";
@@ -87,6 +92,7 @@ let serviceName = new api.Tastypie.Resource('service_name'); //using default pro
 let serviceName = new api.Tastypie.Resource('service_name', {provider: 'provider1'}); //using selected provider "provider1" 
 
 ```
+
 
 ## Class Model Usage :+1:
 ```typescript
