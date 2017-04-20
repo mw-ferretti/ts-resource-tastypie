@@ -1,6 +1,3 @@
-# ts-resource-tastypie
-REST TypeScript client for Django-Tastypie or equivalent schema.
-
 # Ts Resource Tastypie
 [RESTful](http://www.ibm.com/developerworks/library/ws-restful/) TypeScript client for [Django-Tastypie](https://django-tastypie.readthedocs.org/en/latest/) or equivalent schema.
 
