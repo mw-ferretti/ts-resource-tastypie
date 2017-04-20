@@ -2,9 +2,9 @@
 [RESTful](http://www.ibm.com/developerworks/library/ws-restful/) TypeScript client for [Django-Tastypie](https://django-tastypie.readthedocs.org/en/latest/) or equivalent schema.
 
 Features:
-> 1. Pagination
-> 2. Complete CRUD
-> 3. Abstract AJAX(J) providing operations which are similar to the [Django Model API](https://docs.djangoproject.com/en/dev/topics/db/queries/)
+> - Pagination
+> - Complete CRUD
+> - Abstract AJAX(J) providing operations which are similar to the [Django Model API](https://docs.djangoproject.com/en/dev/topics/db/queries/)
 
 ## Context
 [RESTful](http://www.ibm.com/developerworks/library/ws-restful/) architecture with [TypeScript](https://www.typescriptlang.org/) and [Django](https://www.djangoproject.com/).
