@@ -29,4 +29,118 @@ BENEFITS:
 ## Install
 > npm i ts-resource-tastypie
 
-# Documentation in development ...
+## Basic Usage
+```typescript
+import * as api from "ts-resource-tastypie";
+
+api.Tastypie.Provider.add(
+    new api.Tastypie.Provider({name:'provider1', url:'http://address1/api/v1/', username:'admin', apikey:'123'})
+);
+
+let serviceName = new api.Tastypie.Resource('service_name');
+
+serviceName.objects.create(data: any); //return Promise<any> 
+serviceName.objects.update(id :number, data: any); //return Promise<any>
+serviceName.objects.save(data: any); //return Promise<any>
+serviceName.objects.delete(id: number); //return Promise<any>
+serviceName.objects.get(id: number); //return Promise<any>
+serviceName.objects.find(data: any); //return Promise<page>
+
+serviceName.objects.find(data: any).then(
+    function(page){
+        //page.objects :Array<any>
+        
+        //page.meta.total_count :number
+        //page.meta.limit : number
+        //page.meta.offset : number
+        //page.meta.next :string
+        //page.meta.previous :string
+                
+        //page.index :number
+        //page.length :number
+        //page.range :Array<number>
+        
+        //page.change(index :number) :Promise<page>
+        //page.next() :Promise<page>
+        //page.previous() :Promise<page>
+        //page.refresh() :Promise<page>
+        //page.first() :Promise<page>
+        //page.last() :Promise<page>
+    }
+)
+
+```
+
+## Multiple Provider Usage
+```typescript
+import * as api from "ts-resource-tastypie";
+
+api.Tastypie.Provider.add(
+    new api.Tastypie.Provider({name:'provider1', url:'http://address1/api/v1/', username:'admin', apikey:'123'}),
+    new api.Tastypie.Provider({name:'provider2', url:'http://address2/api/v1/'),
+    new api.Tastypie.Provider({name:'provider3', url:'http://address3/api/v1/')
+);
+
+api.Tastypie.Provider.setDefault('provider3');
+
+let serviceName = new api.Tastypie.Resource('service_name'); //using default provider "privider3" 
+let serviceName = new api.Tastypie.Resource('service_name', {provider: 'provider1'}); //using selected provider "provider1" 
+
+```
+
+## Class Model Usage :+1:
+```typescript
+import * as api from "ts-resource-tastypie";
+
+api.Tastypie.Provider.add(
+    new api.Tastypie.Provider({name:'provider1', url:'http://address1/api/v1/', username:'admin', apikey:'123'})
+);
+
+class myClassModel extends api.Tastypie.Model<myClassModel> {
+    public static resource = new api.Tastypie.Resource<myClassModel>('serviceName', {model: myClassModel});
+    
+    public myAttr1: string;
+    public myAttr2: number;
+    public myAttr3: string;
+    
+    constructor(obj?:any){
+        super(myClassModel.resource, obj);
+    }
+}
+
+//Usage:
+At this moment we no longer work with generic objects. Works with instances of your class that has been defined.
+
+myClassModel.resource.objects.create(data: any); //return Promise<myClassModel> 
+myClassModel.resource.objects.update(id :number, data: any); //return Promise<myClassModel>
+myClassModel.resource.objects.save(data: any); //return Promise<myClassModel>
+myClassModel.resource.objects.delete(id: number); //return Promise<myClassModel>
+myClassModel.resource.objects.get(id: number); //return Promise<myClassModel>
+myClassModel.resource.objects.find(data: any); //return Promise<page>
+
+//Ex:
+
+let myObj = new myClassModel({myAttr1: 'foo', myAttr2: 'bar'})
+myObj.save()
+
+let myObj = new myClassModel()
+myObj.myAttr1 = 'foo'
+myObj.myAttr2 = 'bar'
+myObj.save()
+
+serviceName.objects.find(data: any).then(
+    function(page){
+        //page.objects :Array<myClassModel>
+    }
+)
+
+```
+## Making queries
+> Documentation in development ...
+
+## Contribute
+If you found it useful, please consider paying me a coffee ;
+[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RGQ8NSYPA59FL)
+
+## License
+angular-resource-tastypie is released under the [MIT License](https://github.com/mw-ferretti/angular-resource-tastypie/blob/master/LICENSE).
