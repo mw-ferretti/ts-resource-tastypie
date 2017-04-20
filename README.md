@@ -83,7 +83,7 @@ api.Tastypie.Provider.add(
 
 api.Tastypie.Provider.setDefault('provider3');
 
-let serviceName = new api.Tastypie.Resource('service_name'); //using default provider "privider3" 
+let serviceName = new api.Tastypie.Resource('service_name'); //using default provider "provider3" 
 let serviceName = new api.Tastypie.Resource('service_name', {provider: 'provider1'}); //using selected provider "provider1" 
 
 ```
