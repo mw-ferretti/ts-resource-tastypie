@@ -21,11 +21,8 @@ BENEFITS:
 > - Business rules are the same for different types of [UI](https://en.wikipedia.org/wiki/User_interface). We can create different [UIs](https://en.wikipedia.org/wiki/User_interface) with any other programming language, passing through the same business rules on the backend.
 > - And more ...
 
-## Requirements
-> - Backend:  [Django-Tastypie](https://django-tastypie.readthedocs.org/en/latest/) or equivalent schema.
-
-Note
-> Requirements for the backend:
+## Requirements for the backend:
+> - [Django-Tastypie](https://django-tastypie.readthedocs.org/en/latest/) or equivalent schema.
 > - [django-cors-headers](https://github.com/ottoyiu/django-cors-headers)
 > - [always_return_data](http://django-tastypie.readthedocs.org/en/latest/resources.html#always-return-data)
 
