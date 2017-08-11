@@ -1,10 +1,69 @@
-// Type definitions for [~Tastypie Lib~] [~1.0.6~]
+// Type definitions for [~Tastypie Lib~] [~1.0.7~]
 // Project: [~ts-resource-tastypie~]
 // Definitions by: [~MARCOS WILLIAM FERRETTI~] <[~https://github.com/mw-ferretti~]>
 
 import axios from 'axios';
 
 export namespace Tastypie {
+
+    export class Working {
+        private _status: number = 0;
+        private static _status: number = 0;
+
+        public get status(): boolean {
+          return this._status > 0;
+        }
+
+        public set status(p: boolean) {
+            this._status += p? 1 : this._status? -1 : 0;
+            Working.status = p;
+        }
+
+        public static get status(): boolean {
+            return this._status > 0;
+        }
+
+        public static set status(p: boolean) {
+            this._status += p? 1 : this._status? -1 : 0;
+        }
+    }
+
+    export class HttpExceptions {
+        public httpCode: number;
+        public callback: (response: any) => any;
+        private static _httpExceptions: Array<HttpExceptions> = [];
+
+        constructor(httpCode: number, callback: (response: any) => any){
+            this.httpCode = httpCode;
+            this.callback = callback;
+        }
+
+        public static add(...p: Array<HttpExceptions>): void {
+            for (let except of p){
+                if(typeof(except.callback) === "function"){
+                    for(let i=0; i<this._httpExceptions.length;i++){
+                        if(this._httpExceptions[i].httpCode == except.httpCode){
+                            this._httpExceptions.splice(i, 1);
+                        }
+                    }
+                    this._httpExceptions.push(except);
+                }else{
+                    throw new TypeError("[HttpExceptions][add] Callback to '" + except.httpCode + "' not is a function.");
+                }
+            }
+        }
+
+        public static get(httpCode: number): HttpExceptions {
+            let ret: HttpExceptions;
+            for (let except of this._httpExceptions){
+                if(except.httpCode == httpCode){
+                    ret = except;
+                    break;
+                }
+            }
+            return ret;
+        }
+    }
 
     export class Tools {
         public static extract_domain(url:string):string {
@@ -26,6 +85,23 @@ export namespace Tastypie {
         public static generate_exception(msg:string): Promise<any> {
             if (typeof(console) == "object") console.log(msg);
             return Promise.reject(msg);
+        }
+
+        public static trigger_http_exception(moduleName: string, error: any): any {
+            error = error || {};
+            error.response.statusText = moduleName.concat(' HTTP_', error.response.status, ' - ', error.response.statusText || ' Server Not Responding.');
+            if (typeof(console) == "object") {
+                console.log('');
+                console.log('-----------------------');
+                console.log(error.response.statusText);
+                console.log(moduleName.concat(' ', 'DATA RESP.: \"', error.response.data, '\"'));
+                console.log('-----------------------');
+                console.log('');
+            }
+
+            let fn = HttpExceptions.get(+error.response.status);
+            if(fn) fn.callback(error.response);
+            return Promise.reject(error.response);
         }
     }
 
@@ -85,7 +161,7 @@ export namespace Tastypie {
             }
 
             if(!ret){
-                throw new TypeError("[TastypieProvider][get] Provider "+name+" not found.");
+                throw new TypeError("[Tastypie][Provider][get] Provider "+name+" not found.");
             }
 
             return ret;
@@ -103,9 +179,31 @@ export namespace Tastypie {
         public static getDefault(): Provider {
 
             if(!this._default_provider){
-                throw new TypeError("[TastypieProvider][getDefault] No registered provider.");
+                throw new TypeError("[Tastypie][Provider][getDefault] No registered provider.");
             }
             return this._default_provider;
+        }
+
+        public static setAuth(providerName: string, username: string, apikey: string): void {
+            let default_provider: Provider = this.getDefault();
+            let found: Boolean = false;
+
+            for (let provider of this._providers){
+                if(providerName == provider.name){
+                    provider.headers['Authorization'] = 'ApiKey '.concat(
+                        username, ':', apikey
+                    );
+                    if(default_provider.name == provider.name){
+                        this.setDefault(provider.name);
+                    }
+                    found = true;
+                    break;
+                }
+            }
+
+            if(!found){
+              throw new TypeError("[Tastypie][Provider][setAuth] Provider '" + providerName + "' not found.");
+            }
         }
     }
 
@@ -115,6 +213,8 @@ export namespace Tastypie {
         private _defaults: any;
         private _model: any;
         private _objects:Objects<T> = new Objects<T>(this);
+        private _page:Paginator<T> = new Paginator<T>(this);
+        private _working: Working = new Working();
 
         constructor(endpoint: string, p?: {defaults?: any, provider?: string, model?: any}){
             this._endpoint = endpoint;
@@ -126,11 +226,11 @@ export namespace Tastypie {
             }
         }
 
-        get endpoint(): string {
+        public get endpoint(): string {
             return this._endpoint+'/';
         }
 
-        get provider(): Provider {
+        public get provider(): Provider {
             if(!this._provider){
                 return Provider.getDefault();
             }else{
@@ -138,16 +238,32 @@ export namespace Tastypie {
             }
         }
 
-        get defaults(): any {
+        public get defaults(): any {
             return this._defaults;
         }
 
-        get model(): any {
+        public get model(): any {
             return this._model;
         }
 
-        get objects(): Objects<T> {
+        public get objects(): Objects<T> {
             return this._objects;
+        }
+
+        public get page(): Paginator<T> {
+            return this._page;
+        }
+
+        public set page(p: Paginator<T>){
+            this._page = p;
+        }
+
+        public get working(): Working {
+            return this._working;
+        }
+
+        public set working(p: Working) {
+            this._working = p;
         }
     }
 
@@ -160,6 +276,7 @@ export namespace Tastypie {
 
         public get(id:number, params?:any): Promise<T> {
             let _self = this;
+            _self._resource.working.status = true;
             return axios({
               method:'get',
               url: '/'+_self._resource.endpoint+id+'/',
@@ -170,22 +287,25 @@ export namespace Tastypie {
             }).then(
                 function(result: any){
                     if(_self._resource.model){
-                        let _obj = new _self._resource.model();
-                        _obj.setData(result.data);
+                        let _obj = new _self._resource.model(result.data);
+                        _self._resource.working.status = false;
                         return _obj;
                     }else{
+                        _self._resource.working.status = false;
                         return result.data;
                     }
                 }
             ).catch(
                 function(error: any){
-                    return Tools.generate_exception('[TastypieObjects][get] '+error);
+                    _self._resource.working.status = false;
+                    return Tools.trigger_http_exception("[Tastypie][Objects][get]", error);
                 }
             );
         }
 
         public delete(id:number, params?:any): Promise<T> {
             let _self = this;
+            _self._resource.working.status = true;
             return axios({
               method:'delete',
               url: '/'+_self._resource.endpoint+id+'/',
@@ -196,22 +316,27 @@ export namespace Tastypie {
             }).then(
                 function(result: any){
                     if(_self._resource.model){
-                        let _obj = new _self._resource.model();
-                        _obj.setData(result.data);
+                        let _obj = new _self._resource.model(result.data);
+                        _self._resource.working.status = false;
+                        _self._resource.page.refresh();
                         return _obj;
                     }else{
+                        _self._resource.working.status = false;
+                        _self._resource.page.refresh();
                         return result.data;
                     }
                 }
             ).catch(
                 function(error: any){
-                    return Tools.generate_exception('[TastypieObjects][delete] '+error);
+                    _self._resource.working.status = false;
+                    return Tools.trigger_http_exception("[Tastypie][Objects][delete]", error);
                 }
             );
         }
 
         public update(id:number, data:any): Promise<T> {
             let _self = this;
+            _self._resource.working.status = true;
             return axios({
               method:'patch',
               url: '/'+_self._resource.endpoint+id+'/',
@@ -222,22 +347,27 @@ export namespace Tastypie {
             }).then(
                 function(result: any){
                     if(_self._resource.model){
-                        let _obj = new _self._resource.model();
-                        _obj.setData(result.data);
+                        let _obj = new _self._resource.model(result.data);
+                        _self._resource.working.status = false;
+                        _self._resource.page.refresh();
                         return _obj;
                     }else{
+                        _self._resource.working.status = false;
+                        _self._resource.page.refresh();
                         return result.data;
                     }
                 }
             ).catch(
                 function(error: any){
-                    return Tools.generate_exception('[TastypieObjects][update] '+error);
+                    _self._resource.working.status = false;
+                    return Tools.trigger_http_exception("[Tastypie][Objects][update]", error);
                 }
             );
         }
 
         public create(data: {}): Promise<any> {
             let _self = this;
+            _self._resource.working.status = true;
             return axios({
               method:'post',
               url: '/'+_self._resource.endpoint,
@@ -248,16 +378,20 @@ export namespace Tastypie {
             }).then(
                 function(result: any){
                     if(_self._resource.model){
-                        let _obj = new _self._resource.model();
-                        _obj.setData(result.data);
+                        let _obj = new _self._resource.model(result.data);
+                        _self._resource.working.status = false;
+                        _self._resource.page.refresh();
                         return _obj;
                     }else{
+                        _self._resource.working.status = false;
+                        _self._resource.page.refresh();
                         return result.data;
                     }
                 }
             ).catch(
                 function(error: any){
-                    return Tools.generate_exception('[TastypieObjects][create] '+error);
+                    _self._resource.working.status = false;
+                    return Tools.trigger_http_exception("[Tastypie][Objects][create]", error);
                 }
             );
         }
@@ -272,6 +406,7 @@ export namespace Tastypie {
 
         public find(filter?: {}): Promise<Paginator<T>> {
             let _self = this;
+            _self._resource.working.status = true;
             return axios({
               method:'get',
               url: '/'+_self._resource.endpoint,
@@ -281,11 +416,14 @@ export namespace Tastypie {
               headers: _self._resource.provider.headers
             }).then(
                 function(result: any){
-                    return new Paginator<T>(_self._resource, result.data, filter);
+                    _self._resource.page = new Paginator<T>(_self._resource, result.data, filter);
+                    _self._resource.working.status = false;
+                    return _self._resource.page;
                 }
             ).catch(
                 function(error: any){
-                    return Tools.generate_exception('[TastypieObjects][find] '+error);
+                    _self._resource.working.status = false;
+                    return Tools.trigger_http_exception("[Tastypie][Objects][find]", error);
                 }
             );
         }
@@ -335,8 +473,7 @@ export namespace Tastypie {
 
             if(_self._resource.model){
                 for (let ix1=0; ix1<result.objects.length; ix1++) {
-                    let _obj = new _self._resource.model();
-                    _obj.setData(result.objects[ix1]);
+                    let _obj = new _self._resource.model(result.objects[ix1]);
                     _self._objects.push(_obj);
                 }
             }else{
@@ -354,6 +491,7 @@ export namespace Tastypie {
         }
 
         private getPage(_self:Paginator<T>, url: string): Promise<Paginator<T>> {
+            _self._resource.working.status = true;
             return axios({
               method:'get',
               url: url,
@@ -362,21 +500,28 @@ export namespace Tastypie {
             }).then(
                 function(result: any){
                     _self.setPage(_self, result.data);
+                    _self._resource.working.status = false;
                     return _self;
                 }
             ).catch(
                 function(error: any){
-                    return Tools.generate_exception('[TastypiePaginator][getPage] '+error);
+                    _self._resource.working.status = false;
+                    return Tools.trigger_http_exception("[Tastypie][Paginator][getPage]", error);
                 }
             );
         }
 
         private changePage(_self:Paginator<T>, index:number, update:boolean): Promise<Paginator<T>> {
+            if(!_self.index){
+                return Tools.generate_exception('[Tastypie][Paginator][refresh] Uninitialized page.');
+            }
+
             if((index == _self.index) && (!update)){
-                return Tools.generate_exception('[TastypiePaginator][changePage] Index '+index+' has already been loaded.');
+                return Tools.generate_exception('[Tastypie][Paginator][changePage] Index '+index+' has already been loaded.');
             }
 
             if ((index > 0) && (index <= _self.length)) {
+                _self._resource.working.status = true;
 
                 let filters = Tools.merge_obj(_self._resource.defaults, _self._defaults);
                 filters['offset'] = ((index-1)*_self.meta.limit);
@@ -392,22 +537,26 @@ export namespace Tastypie {
                         if(result.data.meta.offset == result.data.meta.total_count) {
                             if((index - 1) == 0){
                                 _self.setPage(_self, result.data);
+                                _self._resource.working.status = false;
                                 return _self;
                             }else{
+                                _self._resource.working.status = false;
                                 return _self.changePage(_self, (index - 1), true);
                             }
                         }else{
                             _self.setPage(_self, result.data);
+                            _self._resource.working.status = false;
                             return _self;
                         }
                     }
                 ).catch(
-                    function(error){
-                        return Tools.generate_exception('[TastypiePaginator][changePage] '+error);
+                    function(error: any){
+                        _self._resource.working.status = false;
+                        return Tools.trigger_http_exception("[Tastypie][Paginator][changePage]", error);
                     }
                 );
             }else{
-                return Tools.generate_exception('[TastypiePaginator][changePage] Index '+index+' not exist.');
+                return Tools.generate_exception('[Tastypie][Paginator][changePage] Index '+index+' not exist.');
             }
         }
 
@@ -419,7 +568,7 @@ export namespace Tastypie {
             if(this.meta.next){
                 return this.getPage(this, this._resource.provider.domain + this.meta.next);
             }else{
-                return Tools.generate_exception('[TastypiePaginator][next] Not exist next pages.');
+                return Tools.generate_exception('[Tastypie][Paginator][next] Not exist next pages.');
             }
         }
 
@@ -427,7 +576,7 @@ export namespace Tastypie {
             if(this.meta.previous){
                 return this.getPage(this, this._resource.provider.domain + this.meta.previous);
             }else{
-                return Tools.generate_exception('[TastypiePaginator][previous] Not exist previous pages.');
+                return Tools.generate_exception('[Tastypie][Paginator][previous] Not exist previous pages.');
             }
         }
 

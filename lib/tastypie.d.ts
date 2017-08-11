@@ -1,8 +1,23 @@
 export declare namespace Tastypie {
+    class Working {
+        private _status;
+        private static _status;
+        status: boolean;
+        static status: boolean;
+    }
+    class HttpExceptions {
+        httpCode: number;
+        callback: (response: any) => any;
+        private static _httpExceptions;
+        constructor(httpCode: number, callback: (response: any) => any);
+        static add(...p: Array<HttpExceptions>): void;
+        static get(httpCode: number): HttpExceptions;
+    }
     class Tools {
         static extract_domain(url: string): string;
         static merge_obj(obj1?: any, obj2?: any): any;
         static generate_exception(msg: string): Promise<any>;
+        static trigger_http_exception(moduleName: string, error: any): any;
     }
     class Provider {
         name: string;
@@ -24,6 +39,7 @@ export declare namespace Tastypie {
         static get(name: string): Provider;
         static setDefault(name: string): void;
         static getDefault(): Provider;
+        static setAuth(providerName: string, username: string, apikey: string): void;
     }
     class Resource<T> {
         private _endpoint;
@@ -31,6 +47,8 @@ export declare namespace Tastypie {
         private _defaults;
         private _model;
         private _objects;
+        private _page;
+        private _working;
         constructor(endpoint: string, p?: {
             defaults?: any;
             provider?: string;
@@ -41,6 +59,8 @@ export declare namespace Tastypie {
         readonly defaults: any;
         readonly model: any;
         readonly objects: Objects<T>;
+        page: Paginator<T>;
+        working: Working;
     }
     class Objects<T> {
         private _resource;
