@@ -108,5 +108,6 @@ export declare namespace Tastypie {
         constructor(resource: Resource<T>, _obj?: any);
         getData(): any;
         setData(toself: any): void;
+        concatDomain(p: string): string;
     }
 }

@@ -1,4 +1,4 @@
-// Type definitions for [~Tastypie Lib~] [~1.0.8~]
+// Type definitions for [~Tastypie Lib~] [~1.0.9~]
 // Project: [~ts-resource-tastypie~]
 // Definitions by: [~MARCOS WILLIAM FERRETTI~] <[~https://github.com/mw-ferretti~]>
 
@@ -645,6 +645,10 @@ export namespace Tastypie {
                 _self[attrname] = toself[attrname];
 
             }
+        }
+
+        public concatDomain(p:string): string {
+            return this._resource.provider.domain + p;
         }
     }
 
