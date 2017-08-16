@@ -17,6 +17,7 @@ export declare namespace Tastypie {
         static extract_domain(url: string): string;
         static merge_obj(obj1?: any, obj2?: any): any;
         static generate_exception(msg: string): Promise<any>;
+        static generate_resolve(msg: string): Promise<any>;
         static trigger_http_exception(moduleName: string, error: any): any;
     }
     class Provider {

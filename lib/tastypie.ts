@@ -1,4 +1,4 @@
-// Type definitions for [~Tastypie Lib~] [~1.0.7~]
+// Type definitions for [~Tastypie Lib~] [~1.0.8~]
 // Project: [~ts-resource-tastypie~]
 // Definitions by: [~MARCOS WILLIAM FERRETTI~] <[~https://github.com/mw-ferretti~]>
 
@@ -85,6 +85,11 @@ export namespace Tastypie {
         public static generate_exception(msg:string): Promise<any> {
             if (typeof(console) == "object") console.log(msg);
             return Promise.reject(msg);
+        }
+
+        public static generate_resolve(msg:string): Promise<any> {
+            if (typeof(console) == "object") console.log(msg);
+            return Promise.resolve(msg);
         }
 
         public static trigger_http_exception(moduleName: string, error: any): any {
@@ -513,11 +518,11 @@ export namespace Tastypie {
 
         private changePage(_self:Paginator<T>, index:number, update:boolean): Promise<Paginator<T>> {
             if(!_self.index){
-                return Tools.generate_exception('[Tastypie][Paginator][refresh] Uninitialized page.');
+                return Tools.generate_resolve('[Tastypie][Paginator][refresh] Uninitialized page.');
             }
 
             if((index == _self.index) && (!update)){
-                return Tools.generate_exception('[Tastypie][Paginator][changePage] Index '+index+' has already been loaded.');
+                return Tools.generate_resolve('[Tastypie][Paginator][changePage] Index '+index+' has already been loaded.');
             }
 
             if ((index > 0) && (index <= _self.length)) {
