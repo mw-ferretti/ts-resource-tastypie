@@ -1,4 +1,4 @@
-// Type definitions for [~Tastypie Lib~] [~1.0.9~]
+// Type definitions for [~Tastypie Lib~] [~1.1.0~]
 // Project: [~ts-resource-tastypie~]
 // Definitions by: [~MARCOS WILLIAM FERRETTI~] <[~https://github.com/mw-ferretti~]>
 
@@ -94,6 +94,7 @@ export namespace Tastypie {
 
         public static trigger_http_exception(moduleName: string, error: any): any {
             error = error || {};
+            error.response = error.response || {};
             error.response.statusText = moduleName.concat(' HTTP_', error.response.status, ' - ', error.response.statusText || ' Server Not Responding.');
             if (typeof(console) == "object") {
                 console.log('');
@@ -107,6 +108,16 @@ export namespace Tastypie {
             let fn = HttpExceptions.get(+error.response.status);
             if(fn) fn.callback(error.response);
             return Promise.reject(error.response);
+        }
+
+        public static getProperties(data: any): Array<string> {
+            const properties: Array<string> = [];
+            for(let property in data) {
+                if (data.hasOwnProperty(property) && property.charAt(0) != '_') {
+                  properties.push(property);
+                }
+            }
+            return properties;
         }
     }
 
@@ -323,11 +334,11 @@ export namespace Tastypie {
                     if(_self._resource.model){
                         let _obj = new _self._resource.model(result.data);
                         _self._resource.working.status = false;
-                        _self._resource.page.refresh();
+                        if(_self._resource.page.initialized) _self._resource.page.refresh();
                         return _obj;
                     }else{
                         _self._resource.working.status = false;
-                        _self._resource.page.refresh();
+                        if(_self._resource.page.initialized) _self._resource.page.refresh();
                         return result.data;
                     }
                 }
@@ -354,11 +365,11 @@ export namespace Tastypie {
                     if(_self._resource.model){
                         let _obj = new _self._resource.model(result.data);
                         _self._resource.working.status = false;
-                        _self._resource.page.refresh();
+                        if(_self._resource.page.initialized) _self._resource.page.refresh();
                         return _obj;
                     }else{
                         _self._resource.working.status = false;
-                        _self._resource.page.refresh();
+                        if(_self._resource.page.initialized) _self._resource.page.refresh();
                         return result.data;
                     }
                 }
@@ -385,11 +396,11 @@ export namespace Tastypie {
                     if(_self._resource.model){
                         let _obj = new _self._resource.model(result.data);
                         _self._resource.working.status = false;
-                        _self._resource.page.refresh();
+                        if(_self._resource.page.initialized) _self._resource.page.refresh();
                         return _obj;
                     }else{
                         _self._resource.working.status = false;
-                        _self._resource.page.refresh();
+                        if(_self._resource.page.initialized) _self._resource.page.refresh();
                         return result.data;
                     }
                 }
@@ -434,14 +445,40 @@ export namespace Tastypie {
         }
     }
 
+    export class PageMeta {
+        public total_count: number;
+        public limit: number;
+        public offset: number;
+        public next: string;
+        public previous: string;
+        public kargs?: {};
+
+        constructor(p: {
+            total_count: number,
+            limit: number,
+            offset: number,
+            next: string,
+            previous: string,
+            kargs?: {}
+        }) {
+              this.total_count = p.total_count;
+              this.limit = p.limit;
+              this.offset = p.offset;
+              this.next = p.next;
+              this.previous = p.previous;
+              this.kargs = p.kargs;
+        }
+    }
+
     export class Paginator<T> {
         private _resource: Resource<T>;
-        private _meta: any;
+        private _meta: PageMeta;
         private _objects: Array<T>;
         private _index: number;
         private _length: number;
         private _range: Array<number>;
         private _defaults: any;
+        private _initialized: boolean;
 
         constructor(p:Resource<T>, obj?:any, filters?:any) {
             this._resource = p;
@@ -450,10 +487,13 @@ export namespace Tastypie {
 
             if(obj){
                 this.setPage(this, obj);
+            }else{
+                this._meta = new PageMeta({total_count: 0, limit: 0, offset: 0, next: null, previous: null, kargs: {}});
+                this._initialized = false;
             }
         }
 
-        get meta(): any {
+        get meta(): PageMeta {
             return this._meta;
         }
 
@@ -473,8 +513,12 @@ export namespace Tastypie {
             return this._range;
         }
 
+        get initialized(): boolean {
+            return this._initialized;
+        }
+
         private setPage(_self:Paginator<T>, result:{meta:any; objects:Array<any>}): void {
-            _self._meta = result.meta;
+            _self._meta = new PageMeta(result.meta);
 
             if(_self._resource.model){
                 for (let ix1=0; ix1<result.objects.length; ix1++) {
@@ -485,14 +529,17 @@ export namespace Tastypie {
                 _self._objects = result.objects;
             }
 
-            _self._length = Math.ceil(result.meta.total_count / (result.meta.limit || 1));
+            if(_self._meta.limit) _self._length =  Math.ceil(_self._meta.total_count / _self._meta.limit);
+            else _self._length = 1;
 
-            if (result.meta.offset == 0) _self._index = 1;
-            else _self._index  = (Math.ceil(result.meta.offset / result.meta.limit)+1);
+            if(_self._meta.offset && _self._meta.limit) _self._index  = (Math.ceil(_self._meta.offset / _self._meta.limit)+1);
+            else _self._index = 1;
 
             var pgs = [];
             for (let ix2=1;ix2<=_self.length;ix2++) {pgs.push(ix2);}
             _self._range = pgs;
+
+            _self._initialized = true;
         }
 
         private getPage(_self:Paginator<T>, url: string): Promise<Paginator<T>> {
@@ -517,8 +564,8 @@ export namespace Tastypie {
         }
 
         private changePage(_self:Paginator<T>, index:number, update:boolean): Promise<Paginator<T>> {
-            if(!_self.index){
-                return Tools.generate_resolve('[Tastypie][Paginator][refresh] Uninitialized page.');
+            if(!_self._initialized){
+                return Tools.generate_exception('[Tastypie][Paginator] Uninitialized page.');
             }
 
             if((index == _self.index) && (!update)){
@@ -626,24 +673,25 @@ export namespace Tastypie {
             }
         }
 
-        public getData(): any{
-            let _self: any = <{}> this;
-            let selflist: any = {};
-            for(let attrname in _self){
-                if(typeof _self[attrname] !== 'function'){
-                    if(String(attrname).charAt(0) != '_'){
-                        selflist[attrname] = _self[attrname];
-                    }
-                }
-            }
-            return selflist;
+        public getProperties(): Array<string> {
+            return Tools.getProperties(this);
         }
 
-        public setData(toself: any): void{
-            let _self = this;
-            for(let attrname in toself){
-                _self[attrname] = toself[attrname];
+        public getData(): any{
+            let self:Model<T> = this;
+            let data: any = {};
+            let properties: Array<string> = Tools.getProperties(this);
+            for(let propertie of properties){
+                data[propertie] = self[propertie];
+            }
+            return data;
+        }
 
+        public setData(data: any): void{
+            let self:Model<T> = this;
+            let properties: Array<string> = Tools.getProperties(data);
+            for(let propertie of properties){
+                self[propertie] = data[propertie];
             }
         }
 

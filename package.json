@@ -1,6 +1,6 @@
 {
   "name": "ts-resource-tastypie",
-  "version": "1.0.9",
+  "version": "1.1.0",
   "description": "REST Typescript client for Django-Tastypie or equivalent schema.",
   "main": "./lib/tastypie.js",
   "types": "./lib/tastypie.d.ts",
@@ -8,7 +8,7 @@
     "axios": "^0.16.1"
   },
   "devDependencies": {
-    "typescript": "^2.2.2"
+    "typescript": "^2.5.1"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

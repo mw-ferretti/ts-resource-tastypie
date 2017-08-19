@@ -19,6 +19,7 @@ export declare namespace Tastypie {
         static generate_exception(msg: string): Promise<any>;
         static generate_resolve(msg: string): Promise<any>;
         static trigger_http_exception(moduleName: string, error: any): any;
+        static getProperties(data: any): Array<string>;
     }
     class Provider {
         name: string;
@@ -73,6 +74,22 @@ export declare namespace Tastypie {
         save(data: any): Promise<T>;
         find(filter?: {}): Promise<Paginator<T>>;
     }
+    class PageMeta {
+        total_count: number;
+        limit: number;
+        offset: number;
+        next: string;
+        previous: string;
+        kargs?: {};
+        constructor(p: {
+            total_count: number;
+            limit: number;
+            offset: number;
+            next: string;
+            previous: string;
+            kargs?: {};
+        });
+    }
     class Paginator<T> {
         private _resource;
         private _meta;
@@ -81,12 +98,14 @@ export declare namespace Tastypie {
         private _length;
         private _range;
         private _defaults;
+        private _initialized;
         constructor(p: Resource<T>, obj?: any, filters?: any);
-        readonly meta: any;
+        readonly meta: PageMeta;
         readonly objects: Array<T>;
         readonly index: number;
         readonly length: number;
         readonly range: Array<number>;
+        readonly initialized: boolean;
         private setPage(_self, result);
         private getPage(_self, url);
         private changePage(_self, index, update);
@@ -106,8 +125,9 @@ export declare namespace Tastypie {
         id: number;
         save(obj?: any): Promise<T>;
         constructor(resource: Resource<T>, _obj?: any);
+        getProperties(): Array<string>;
         getData(): any;
-        setData(toself: any): void;
+        setData(data: any): void;
         concatDomain(p: string): string;
     }
 }
