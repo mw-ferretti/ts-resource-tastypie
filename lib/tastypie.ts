@@ -1,4 +1,4 @@
-// Type definitions for [~Tastypie Lib~] [~1.0.10~]
+// Type definitions for [~Tastypie Lib~] [~1.0.11~]
 // Project: [~ts-resource-tastypie~]
 // Definitions by: [~MARCOS WILLIAM FERRETTI~] <[~https://github.com/mw-ferretti~]>
 
@@ -580,7 +580,8 @@ export namespace Tastypie {
 
                 return axios({
                   method:'get',
-                  url: _self._resource.endpoint,
+                  url: '/'+_self._resource.endpoint,
+                  baseURL: _self._resource.provider.url,
                   responseType:'json',
                   params:filters,
                   headers: _self._resource.provider.headers
