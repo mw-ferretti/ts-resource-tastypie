@@ -1,4 +1,4 @@
-// Type definitions for [~Tastypie Lib~] [~1.0.11~]
+// Type definitions for [~Tastypie Lib~] [~1.0.12~]
 // Project: [~ts-resource-tastypie~]
 // Definitions by: [~MARCOS WILLIAM FERRETTI~] <[~https://github.com/mw-ferretti~]>
 
@@ -519,6 +519,7 @@ export namespace Tastypie {
 
         private setPage(_self:Paginator<T>, result:{meta:any; objects:Array<any>}): void {
             _self._meta = new PageMeta(result.meta);
+            _self._objects = [];
 
             if(_self._resource.model){
                 for (let ix1=0; ix1<result.objects.length; ix1++) {
