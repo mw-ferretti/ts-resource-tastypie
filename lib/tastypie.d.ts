@@ -15,6 +15,7 @@ export declare namespace Tastypie {
     }
     class Tools {
         static extract_domain(url: string): string;
+        static extract_protocol(url: string): string;
         static merge_obj(obj1?: any, obj2?: any): any;
         static generate_exception(msg: string): Promise<any>;
         static generate_resolve(msg: string): Promise<any>;
@@ -24,6 +25,7 @@ export declare namespace Tastypie {
     class Provider {
         name: string;
         url: string;
+        protocol: string;
         domain: string;
         username: string;
         apikey: string;

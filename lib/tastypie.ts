@@ -1,4 +1,4 @@
-// Type definitions for [~Tastypie Lib~] [~1.0.14~]
+// Type definitions for [~Tastypie Lib~] [~1.0.15~]
 // Project: [~ts-resource-tastypie~]
 // Definitions by: [~MARCOS WILLIAM FERRETTI~] <[~https://github.com/mw-ferretti~]>
 
@@ -75,6 +75,10 @@ export namespace Tastypie {
             }
         }
 
+        public static extract_protocol(url:string):string {
+            return url.split(':')[0];
+        }
+
         public static merge_obj(obj1:any={}, obj2:any={}):any{
             let obj3 = {};
             for (let attrname in obj1) { obj3[attrname] = obj1[attrname]; }
@@ -125,6 +129,7 @@ export namespace Tastypie {
     export class Provider {
         public name: string;
         public url: string;
+        public protocol: string;
         public domain: string;
         public username: string;
         public apikey: string;
@@ -151,6 +156,7 @@ export namespace Tastypie {
                 );
             }
             this.domain = Tools.extract_domain(this.url);
+            this.protocol = Tools.extract_protocol(this.url);
         }
 
         public static add(...p: Array<Provider>): void {

@@ -1,6 +1,6 @@
 {
   "name": "ts-resource-tastypie",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "description": "REST Typescript client for Django-Tastypie or equivalent schema.",
   "main": "./lib/tastypie.js",
   "types": "./lib/tastypie.d.ts",
