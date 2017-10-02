@@ -1,4 +1,4 @@
-// Type definitions for [~Tastypie Lib~] [~1.0.13~]
+// Type definitions for [~Tastypie Lib~] [~1.0.14~]
 // Project: [~ts-resource-tastypie~]
 // Definitions by: [~MARCOS WILLIAM FERRETTI~] <[~https://github.com/mw-ferretti~]>
 
@@ -100,7 +100,8 @@ export namespace Tastypie {
                 console.log('');
                 console.log('-----------------------');
                 console.log(error.response.statusText);
-                console.log(moduleName.concat(' ', 'DATA RESP.: \"', error.response.data, '\"'));
+                console.log(moduleName.concat(' ', 'DATA RESP.:'));
+                console.log(error.response.data);
                 console.log('-----------------------');
                 console.log('');
             }
@@ -163,6 +164,10 @@ export namespace Tastypie {
 
                 if(!this._default_provider){
                     this._default_provider = provider;
+                }else{
+                    if(this._default_provider.name == provider.name){
+                        this._default_provider = provider;
+                    }
                 }
             }
         }
