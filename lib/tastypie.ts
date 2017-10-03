@@ -1,4 +1,4 @@
-// Type definitions for [~Tastypie Lib~] [~1.0.15~]
+// Type definitions for [~Tastypie Lib~] [~1.0.16~]
 // Project: [~ts-resource-tastypie~]
 // Definitions by: [~MARCOS WILLIAM FERRETTI~] <[~https://github.com/mw-ferretti~]>
 
@@ -68,10 +68,10 @@ export namespace Tastypie {
     export class Tools {
         public static extract_domain(url:string):string {
             if (url.indexOf("://") > -1) {
-                return url.split('/')[0] + '//' + url.split('/')[2].split('/')[0];
+                return url.split('/')[2].split('/')[0];
             }
             else {
-                return url.split('/')[0];
+                return ""
             }
         }
 
@@ -127,13 +127,13 @@ export namespace Tastypie {
     }
 
     export class Provider {
-        public name: string;
-        public url: string;
-        public protocol: string;
-        public domain: string;
-        public username: string;
-        public apikey: string;
-        public headers: {};
+        private _name: string;
+        private _url: string;
+        private _protocol: string;
+        private _domain: string;
+        private _username: string;
+        private _apikey: string;
+        private _headers: {};
         private static _providers: Array<Provider> = [];
         private static _default_provider: Provider;
 
@@ -144,19 +144,55 @@ export namespace Tastypie {
             apikey?: string;
             headers?: {};
         }){
-            this.name = p.name;
-            this.url = p.url;
-            this.username = p.username || '';
-            this.apikey = p.apikey || '';
-            this.headers = p.headers || {};
-            this.headers['Content-Type'] = 'application/json';
-            if(this.username && this.apikey){
-                this.headers['Authorization'] = 'ApiKey '.concat(
-                    this.username, ':', this.apikey
+            this._name = p.name;
+            this._url = p.url;
+            this._username = p.username || '';
+            this._apikey = p.apikey || '';
+            this._headers = p.headers || {};
+            this._headers['Content-Type'] = 'application/json';
+            if(this._username && this._apikey){
+                this._headers['Authorization'] = 'ApiKey '.concat(
+                    this._username, ':', this._apikey
                 );
             }
-            this.domain = Tools.extract_domain(this.url);
-            this.protocol = Tools.extract_protocol(this.url);
+            this._domain = Tools.extract_domain(this._url);
+            this._protocol = Tools.extract_protocol(this._url);
+        }
+
+        public get name():string {
+            return this._name;
+        }
+
+        public get url(): string {
+            return this._url;
+        }
+
+        public get protocol(): string {
+            return this._protocol;
+        }
+
+        public get domain(): string {
+            return this._domain;
+        }
+
+        public get username(): string {
+            return this._username;
+        }
+
+        public get apikey(): string {
+            return this._apikey;
+        }
+
+        public get headers(): {} {
+            return this._headers;
+        }
+
+        public concateDomain(p: string): string {
+            return this.protocol + '://' + this.domain + p;
+        }
+
+        public concateSubDomain(p: string): string {
+            return this.protocol + '://' + p + '.' + this.domain;
         }
 
         public static add(...p: Array<Provider>): void {
@@ -504,28 +540,32 @@ export namespace Tastypie {
             }
         }
 
-        get meta(): PageMeta {
+        public get meta(): PageMeta {
             return this._meta;
         }
 
-        get objects(): Array<T> {
+        public get objects(): Array<T> {
             return this._objects;
         }
 
-        get index(): number {
+        public get index(): number {
             return this._index;
         }
 
-        get length(): number {
+        public get length(): number {
             return this._length;
         }
 
-        get range(): Array<number> {
+        public get range(): Array<number> {
             return this._range;
         }
 
-        get initialized(): boolean {
+        public get initialized(): boolean {
             return this._initialized;
+        }
+
+        public get resource(): Resource<T> {
+            return this._resource;
         }
 
         private setPage(_self:Paginator<T>, result:{meta:any; objects:Array<any>}): void {
@@ -667,6 +707,18 @@ export namespace Tastypie {
         private _resource: Resource<T>;
         public id:number;
 
+        constructor(resource:Resource<T>, _obj?:any){
+            this._resource = resource;
+
+            if(_obj){
+                this.setData(_obj);
+            }
+        }
+
+        public get resource(): Resource<T> {
+            return this._resource;
+        }
+
         public save(obj?:any): Promise<T> {
             let _self = this;
             let to_save = (obj || _self.getData());
@@ -676,14 +728,6 @@ export namespace Tastypie {
                     return r;
                 }
             );
-        }
-
-        constructor(resource:Resource<T>, _obj?:any){
-            this._resource = resource;
-
-            if(_obj){
-                this.setData(_obj);
-            }
         }
 
         public getProperties(): Array<string> {
@@ -707,10 +751,5 @@ export namespace Tastypie {
                 self[propertie] = data[propertie];
             }
         }
-
-        public concatDomain(p:string): string {
-            return this._resource.provider.domain + p;
-        }
     }
-
 }

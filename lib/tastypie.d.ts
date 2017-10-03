@@ -23,13 +23,13 @@ export declare namespace Tastypie {
         static getProperties(data: any): Array<string>;
     }
     class Provider {
-        name: string;
-        url: string;
-        protocol: string;
-        domain: string;
-        username: string;
-        apikey: string;
-        headers: {};
+        private _name;
+        private _url;
+        private _protocol;
+        private _domain;
+        private _username;
+        private _apikey;
+        private _headers;
         private static _providers;
         private static _default_provider;
         constructor(p: {
@@ -39,6 +39,15 @@ export declare namespace Tastypie {
             apikey?: string;
             headers?: {};
         });
+        readonly name: string;
+        readonly url: string;
+        readonly protocol: string;
+        readonly domain: string;
+        readonly username: string;
+        readonly apikey: string;
+        readonly headers: {};
+        concateDomain(p: string): string;
+        concateSubDomain(p: string): string;
         static add(...p: Array<Provider>): void;
         static get(name: string): Provider;
         static setDefault(name: string): void;
@@ -108,6 +117,7 @@ export declare namespace Tastypie {
         readonly length: number;
         readonly range: Array<number>;
         readonly initialized: boolean;
+        readonly resource: Resource<T>;
         private setPage(_self, result);
         private getPage(_self, url);
         private changePage(_self, index, update);
@@ -125,11 +135,11 @@ export declare namespace Tastypie {
     class Model<T> implements IModel {
         private _resource;
         id: number;
-        save(obj?: any): Promise<T>;
         constructor(resource: Resource<T>, _obj?: any);
+        readonly resource: Resource<T>;
+        save(obj?: any): Promise<T>;
         getProperties(): Array<string>;
         getData(): any;
         setData(data: any): void;
-        concatDomain(p: string): string;
     }
 }
