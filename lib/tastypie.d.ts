@@ -46,8 +46,8 @@ export declare namespace Tastypie {
         readonly username: string;
         readonly apikey: string;
         readonly headers: {};
-        concateDomain(p: string): string;
-        concateSubDomain(p: string): string;
+        concatDomain(p: string): string;
+        concatSubDomain(p: string): string;
         static add(...p: Array<Provider>): void;
         static get(name: string): Provider;
         static setDefault(name: string): void;

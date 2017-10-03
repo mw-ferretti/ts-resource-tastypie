@@ -1,4 +1,4 @@
-// Type definitions for [~Tastypie Lib~] [~1.0.16~]
+// Type definitions for [~Tastypie Lib~] [~1.0.17~]
 // Project: [~ts-resource-tastypie~]
 // Definitions by: [~MARCOS WILLIAM FERRETTI~] <[~https://github.com/mw-ferretti~]>
 
@@ -187,11 +187,11 @@ export namespace Tastypie {
             return this._headers;
         }
 
-        public concateDomain(p: string): string {
+        public concatDomain(p: string): string {
             return this.protocol + '://' + this.domain + p;
         }
 
-        public concateSubDomain(p: string): string {
+        public concatSubDomain(p: string): string {
             return this.protocol + '://' + p + '.' + this.domain;
         }
 
