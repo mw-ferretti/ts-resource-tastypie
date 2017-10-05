@@ -1,4 +1,4 @@
-// Type definitions for [~Tastypie Lib~] [~1.0.17~]
+// Type definitions for [~Tastypie Lib~] [~1.0.18~]
 // Project: [~ts-resource-tastypie~]
 // Definitions by: [~MARCOS WILLIAM FERRETTI~] <[~https://github.com/mw-ferretti~]>
 
@@ -723,6 +723,19 @@ export namespace Tastypie {
             let _self = this;
             let to_save = (obj || _self.getData());
             return _self._resource.objects.save(to_save).then(
+                function(r: any){
+                    _self.setData(r);
+                    return r;
+                }
+            );
+        }
+
+        public update(obj:any): Promise<T> {
+            let _self = this;
+
+            if (!_self.id) return Tools.generate_exception('[Tastypie][Model][update] This object has not been saved.');
+
+            return _self._resource.objects.update(_self.id, obj).then(
                 function(r: any){
                     _self.setData(r);
                     return r;

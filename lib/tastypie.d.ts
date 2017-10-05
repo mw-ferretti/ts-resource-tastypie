@@ -138,6 +138,7 @@ export declare namespace Tastypie {
         constructor(resource: Resource<T>, _obj?: any);
         readonly resource: Resource<T>;
         save(obj?: any): Promise<T>;
+        update(obj: any): Promise<T>;
         getProperties(): Array<string>;
         getData(): any;
         setData(data: any): void;
