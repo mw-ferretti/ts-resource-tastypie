@@ -1,4 +1,4 @@
-// Type definitions for [~Tastypie Lib~] [~1.0.18~]
+// Type definitions for [~Tastypie Lib~] [~1.0.19~]
 // Project: [~ts-resource-tastypie~]
 // Definitions by: [~MARCOS WILLIAM FERRETTI~] <[~https://github.com/mw-ferretti~]>
 
@@ -671,7 +671,7 @@ export namespace Tastypie {
 
         public next(): Promise<Paginator<T>> {
             if(this.meta.next){
-                return this.getPage(this, this._resource.provider.domain + this.meta.next);
+                return this.getPage(this, this._resource.provider.concatDomain(this.meta.next));
             }else{
                 return Tools.generate_exception('[Tastypie][Paginator][next] Not exist next pages.');
             }
@@ -679,7 +679,7 @@ export namespace Tastypie {
 
         public previous(): Promise<Paginator<T>> {
             if(this.meta.previous){
-                return this.getPage(this, this._resource.provider.domain + this.meta.previous);
+                return this.getPage(this, this._resource.provider.concatDomain(this.meta.previous));
             }else{
                 return Tools.generate_exception('[Tastypie][Paginator][previous] Not exist previous pages.');
             }
