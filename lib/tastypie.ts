@@ -1,4 +1,4 @@
-// Type definitions for [~Tastypie Lib~] [~1.0.19~]
+// Type definitions for [~Tastypie Lib~] [~1.0.20~]
 // Project: [~ts-resource-tastypie~]
 // Definitions by: [~MARCOS WILLIAM FERRETTI~] <[~https://github.com/mw-ferretti~]>
 
@@ -581,7 +581,7 @@ export namespace Tastypie {
                 _self._objects = result.objects;
             }
 
-            if(_self._meta.limit) _self._length =  Math.ceil(_self._meta.total_count / _self._meta.limit);
+            if(_self._meta.limit) _self._length =  Math.ceil(_self._meta.total_count / _self._meta.limit) || 1;
             else _self._length = 1;
 
             if(_self._meta.offset && _self._meta.limit) _self._index  = (Math.ceil(_self._meta.offset / _self._meta.limit)+1);
