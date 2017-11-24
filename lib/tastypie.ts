@@ -1,4 +1,4 @@
-// Type definitions for [~Tastypie Lib~] [~1.0.22~]
+// Type definitions for [~Tastypie Lib~] [~1.0.23~]
 // Project: [~ts-resource-tastypie~]
 // Definitions by: [~MARCOS WILLIAM FERRETTI~] <[~https://github.com/mw-ferretti~]>
 
@@ -575,9 +575,12 @@ export namespace Tastypie {
             return this._resource;
         }
 
-        private setPage(_self:Paginator<T>, result:{meta:any; objects:Array<any>}): void {
+        private setPage(_self:Paginator<T>, result:{meta:any; objects:Array<any>}, infinite?: boolean): void {
             _self._meta = new PageMeta(result.meta);
-            _self._objects = [];
+
+            if(!infinite){
+              _self._objects = [];
+            }
 
             if(_self._resource.model){
                 for (let ix1=0; ix1<result.objects.length; ix1++) {
@@ -601,7 +604,7 @@ export namespace Tastypie {
             _self._initialized = true;
         }
 
-        private getPage(_self:Paginator<T>, url: string): Promise<Paginator<T>> {
+        private getPage(_self:Paginator<T>, url: string, infinite?: boolean): Promise<Paginator<T>> {
             _self._resource.working.status = true;
             return axios({
               method:'get',
@@ -610,7 +613,7 @@ export namespace Tastypie {
               headers: _self._resource.provider.headers
             }).then(
                 function(result: any){
-                    _self.setPage(_self, result.data);
+                    _self.setPage(_self, result.data, infinite);
                     _self._resource.working.status = false;
                     return _self;
                 }
@@ -681,6 +684,14 @@ export namespace Tastypie {
                 return this.getPage(this, this._resource.provider.concatDomain(this.meta.next));
             }else{
                 return Tools.generate_exception('[Tastypie][Paginator][next] Not exist next pages.');
+            }
+        }
+
+        public nextInfinite(): Promise<Paginator<T>> {
+            if(this.meta.next){
+                return this.getPage(this, this._resource.provider.concatDomain(this.meta.next), true);
+            }else{
+                return Tools.generate_exception('[Tastypie][Paginator][nextInfinite] Not exist next pages.');
             }
         }
 

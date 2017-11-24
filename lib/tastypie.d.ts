@@ -118,11 +118,12 @@ export declare namespace Tastypie {
         readonly range: Array<number>;
         readonly initialized: boolean;
         readonly resource: Resource<T>;
-        private setPage(_self, result);
-        private getPage(_self, url);
+        private setPage(_self, result, infinite?);
+        private getPage(_self, url, infinite?);
         private changePage(_self, index, update);
         change(index: number): Promise<Paginator<T>>;
         next(): Promise<Paginator<T>>;
+        nextInfinite(): Promise<Paginator<T>>;
         previous(): Promise<Paginator<T>>;
         refresh(): Promise<Paginator<T>>;
         first(): Promise<Paginator<T>>;
