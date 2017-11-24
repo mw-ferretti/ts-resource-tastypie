@@ -1,4 +1,4 @@
-// Type definitions for [~Tastypie Lib~] [~1.0.21~]
+// Type definitions for [~Tastypie Lib~] [~1.0.22~]
 // Project: [~ts-resource-tastypie~]
 // Definitions by: [~MARCOS WILLIAM FERRETTI~] <[~https://github.com/mw-ferretti~]>
 
@@ -505,7 +505,7 @@ export namespace Tastypie {
         public offset: number;
         public next: string;
         public previous: string;
-        public kargs?: {};
+        public kargs?: any;
 
         constructor(p: {
             total_count: number,
@@ -513,14 +513,14 @@ export namespace Tastypie {
             offset: number,
             next: string,
             previous: string,
-            kargs?: {}
+            kargs?: any
         }) {
               this.total_count = p.total_count;
               this.limit = p.limit;
               this.offset = p.offset;
               this.next = p.next;
               this.previous = p.previous;
-              this.kargs = p.kargs;
+              this.kargs = p.kargs || {};
         }
     }
 
