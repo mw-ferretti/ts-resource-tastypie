@@ -1,4 +1,4 @@
-// Type definitions for [~Tastypie Lib~] [~1.0.23~]
+// Type definitions for [~Tastypie Lib~] [~1.0.24~]
 // Project: [~ts-resource-tastypie~]
 // Definitions by: [~MARCOS WILLIAM FERRETTI~] <[~https://github.com/mw-ferretti~]>
 
@@ -341,15 +341,15 @@ export namespace Tastypie {
             let _self = this;
             _self._resource.working.status = true;
 
-            let url = '/'+_self._resource.endpoint+id+'/';
+            let endpoint = '/'+_self._resource.endpoint+id+'/';
 
             if (_self._resource.endpoint.indexOf("<id>") !== -1){
-                url = '/'+_self._resource.endpoint.replace("<id>", String(id))+'/';
+                endpoint = '/'+_self._resource.endpoint.replace("<id>", String(id))+'/';
             }
 
             return axios({
               method:'get',
-              url: '/'+_self._resource.endpoint+id+'/',
+              url: endpoint,
               baseURL: _self._resource.provider.url,
               responseType:'json',
               params: params,
