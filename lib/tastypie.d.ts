@@ -78,7 +78,7 @@ export declare namespace Tastypie {
     class Objects<T> {
         private _resource;
         constructor(p: Resource<T>);
-        get(id: number, params?: any): Promise<T>;
+        get(id?: number, params?: any): Promise<T>;
         delete(id: number, params?: any): Promise<T>;
         update(id: number, data: any): Promise<T>;
         create(data: {}): Promise<any>;
