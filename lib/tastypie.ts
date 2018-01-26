@@ -1,4 +1,4 @@
-// Type definitions for [~Tastypie Lib~] [~1.0.26~]
+// Type definitions for [~Tastypie Lib~] [~1.0.27~]
 // Project: [~ts-resource-tastypie~]
 // Definitions by: [~MARCOS WILLIAM FERRETTI~] <[~https://github.com/mw-ferretti~]>
 
@@ -337,19 +337,13 @@ export namespace Tastypie {
             this._resource = p;
         }
 
-        public get(id?:number, params?:any): Promise<T> {
+        public get(id:number, params?:any): Promise<T> {
             let _self = this;
             _self._resource.working.status = true;
-            let endpoint = ''
+            let endpoint = '/'+_self._resource.endpoint+id+'/';
 
-            if (id) {
-                endpoint = '/'+_self._resource.endpoint+id+'/';
-
-                if (_self._resource.endpoint.indexOf("<id>") !== -1){
-                    endpoint = '/'+_self._resource.endpoint.replace("<id>", String(id));
-                }
-            }else{
-                endpoint = '/'+_self._resource.endpoint+'/';
+            if (_self._resource.endpoint.indexOf("<id>") !== -1){
+                endpoint = '/'+_self._resource.endpoint.replace("<id>", String(id));
             }
 
             return axios({
@@ -374,6 +368,36 @@ export namespace Tastypie {
                 function(error: any){
                     _self._resource.working.status = false;
                     return Tools.trigger_http_exception("[Tastypie][Objects][get]", error);
+                }
+            );
+        }
+
+        public findOne(params?:any): Promise<T> {
+            let _self = this;
+            _self._resource.working.status = true;
+
+            return axios({
+              method:'get',
+              url: '/'+_self._resource.endpoint,
+              baseURL: _self._resource.provider.url,
+              responseType:'json',
+              params: params,
+              headers: _self._resource.provider.headers
+            }).then(
+                function(result: any){
+                    if(_self._resource.model){
+                        let _obj = new _self._resource.model(result.data);
+                        _self._resource.working.status = false;
+                        return _obj;
+                    }else{
+                        _self._resource.working.status = false;
+                        return result.data;
+                    }
+                }
+            ).catch(
+                function(error: any){
+                    _self._resource.working.status = false;
+                    return Tools.trigger_http_exception("[Tastypie][Objects][findOne]", error);
                 }
             );
         }
