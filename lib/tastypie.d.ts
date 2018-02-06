@@ -92,14 +92,14 @@ export declare namespace Tastypie {
         offset: number;
         next: string;
         previous: string;
-        kargs?: any;
+        kwargs?: any;
         constructor(p: {
             total_count: number;
             limit: number;
             offset: number;
             next: string;
             previous: string;
-            kargs?: any;
+            kwargs?: any;
         });
     }
     class Paginator<T> {
