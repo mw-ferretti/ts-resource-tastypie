@@ -1,4 +1,4 @@
-// Type definitions for [~Tastypie Lib~] [~1.0.28~]
+// Type definitions for [~Tastypie Lib~] [~1.0.29~]
 // Project: [~ts-resource-tastypie~]
 // Definitions by: [~MARCOS WILLIAM FERRETTI~] <[~https://github.com/mw-ferretti~]>
 
@@ -788,6 +788,30 @@ export namespace Tastypie {
                     return r;
                 }
             );
+        }
+
+        public changeFile(field: string, event: any): Promise<T> {
+            let _self = this;
+
+            if (!_self.id) return Tools.generate_exception('[Tastypie][Model][updateFile] This object has not been saved.');
+
+            let uploading = new Promise<T>(function(resolve, reject) {
+                let timeout = setTimeout(function(){ reject('timeout'); }, 15000);
+                let reader = new FileReader();
+                reader.onload = function(loadEvent: any){
+                    let paramFile = loadEvent.target.result;
+                    _self._resource.objects.update(_self.id, {field:paramFile}).then(function(data){
+                        clearTimeout(timeout);
+                        _self.setData(data);
+                        resolve(data);
+                    }).catch(function(error){
+                        clearTimeout(timeout);
+                        reject(error);
+                    });
+                }
+                reader.readAsDataURL(event.target.files[0]);
+            });
+            return uploading;
         }
 
         public getProperties(): Array<string> {

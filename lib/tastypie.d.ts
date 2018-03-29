@@ -141,6 +141,7 @@ export declare namespace Tastypie {
         readonly resource: Resource<T>;
         save(obj?: any): Promise<T>;
         update(obj: any): Promise<T>;
+        changeFile(field: string, event: any): Promise<T>;
         getProperties(): Array<string>;
         getData(): any;
         setData(data: any): void;
