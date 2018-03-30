@@ -1,4 +1,4 @@
-// Type definitions for [~Tastypie Lib~] [~1.0.29~]
+// Type definitions for [~Tastypie Lib~] [~1.0.30~]
 // Project: [~ts-resource-tastypie~]
 // Definitions by: [~MARCOS WILLIAM FERRETTI~] <[~https://github.com/mw-ferretti~]>
 
@@ -372,36 +372,6 @@ export namespace Tastypie {
             );
         }
 
-        public findOne(params?:any): Promise<T> {
-            let _self = this;
-            _self._resource.working.status = true;
-
-            return axios({
-              method:'get',
-              url: '/'+_self._resource.endpoint,
-              baseURL: _self._resource.provider.url,
-              responseType:'json',
-              params: params,
-              headers: _self._resource.provider.headers
-            }).then(
-                function(result: any){
-                    if(_self._resource.model){
-                        let _obj = new _self._resource.model(result.data);
-                        _self._resource.working.status = false;
-                        return _obj;
-                    }else{
-                        _self._resource.working.status = false;
-                        return result.data;
-                    }
-                }
-            ).catch(
-                function(error: any){
-                    _self._resource.working.status = false;
-                    return Tools.trigger_http_exception("[Tastypie][Objects][findOne]", error);
-                }
-            );
-        }
-
         public delete(id:number, params?:any): Promise<T> {
             let _self = this;
             _self._resource.working.status = true;
@@ -523,6 +493,44 @@ export namespace Tastypie {
                 function(error: any){
                     _self._resource.working.status = false;
                     return Tools.trigger_http_exception("[Tastypie][Objects][find]", error);
+                }
+            );
+        }
+
+        public findOne(params?:any): Promise<T> {
+            let _self = this;
+            _self._resource.working.status = true;
+
+            return axios({
+              method:'get',
+              url: '/'+_self._resource.endpoint,
+              baseURL: _self._resource.provider.url,
+              responseType:'json',
+              params: params,
+              headers: _self._resource.provider.headers
+            }).then(
+                function(result: any){
+                    let _obj_data: any;
+
+                    if(result.data.hasOwnProperty('meta') && result.data.hasOwnProperty('objects')){
+                        _obj_data = result.data.objects[0];
+                    }else{
+                        _obj_data = result.data;
+                    }
+
+                    if(_self._resource.model){
+                        let _obj = new _self._resource.model(_obj_data);
+                        _self._resource.working.status = false;
+                        return _obj;
+                    }else{
+                        _self._resource.working.status = false;
+                        return _obj_data;
+                    }
+                }
+            ).catch(
+                function(error: any){
+                    _self._resource.working.status = false;
+                    return Tools.trigger_http_exception("[Tastypie][Objects][findOne]", error);
                 }
             );
         }
@@ -748,6 +756,12 @@ export namespace Tastypie {
     export interface IModel {
         id:number;
         save():Promise<any>;
+        update(obj: any):Promise<any>;
+        changeFile(field: string, event: any):Promise<any>;
+        refresh():Promise<any>;
+        getProperties():Array<string>;
+        getData():any;
+        setData(data: any):void;
     }
 
     export class Model<T> implements IModel{
@@ -812,6 +826,19 @@ export namespace Tastypie {
                 reader.readAsDataURL(event.target.files[0]);
             });
             return uploading;
+        }
+
+        public refresh(): Promise<T> {
+            let _self = this;
+
+            if (!_self.id) return Tools.generate_exception('[Tastypie][Model][refresh] This object has not been saved.');
+
+            return _self._resource.objects.get(_self.id).then(
+                function(r: any){
+                    _self.setData(r);
+                    return r;
+                }
+            );
         }
 
         public getProperties(): Array<string> {

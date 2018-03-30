@@ -79,12 +79,12 @@ export declare namespace Tastypie {
         private _resource;
         constructor(p: Resource<T>);
         get(id: number, params?: any): Promise<T>;
-        findOne(params?: any): Promise<T>;
         delete(id: number, params?: any): Promise<T>;
         update(id: number, data: any): Promise<T>;
         create(data: {}): Promise<any>;
         save(data: any): Promise<T>;
         find(filter?: {}): Promise<Paginator<T>>;
+        findOne(params?: any): Promise<T>;
     }
     class PageMeta {
         total_count: number;
@@ -133,6 +133,12 @@ export declare namespace Tastypie {
     interface IModel {
         id: number;
         save(): Promise<any>;
+        update(obj: any): Promise<any>;
+        changeFile(field: string, event: any): Promise<any>;
+        refresh(): Promise<any>;
+        getProperties(): Array<string>;
+        getData(): any;
+        setData(data: any): void;
     }
     class Model<T> implements IModel {
         private _resource;
@@ -142,6 +148,7 @@ export declare namespace Tastypie {
         save(obj?: any): Promise<T>;
         update(obj: any): Promise<T>;
         changeFile(field: string, event: any): Promise<T>;
+        refresh(): Promise<T>;
         getProperties(): Array<string>;
         getData(): any;
         setData(data: any): void;
