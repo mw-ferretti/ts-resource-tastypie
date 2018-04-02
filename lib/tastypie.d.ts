@@ -132,7 +132,7 @@ export declare namespace Tastypie {
     }
     interface IModel {
         id: number;
-        save(): Promise<any>;
+        save(obj?: any): Promise<any>;
         update(obj: any): Promise<any>;
         changeFile(field: string, event: any): Promise<any>;
         refresh(): Promise<any>;

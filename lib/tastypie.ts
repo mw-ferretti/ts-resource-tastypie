@@ -1,4 +1,4 @@
-// Type definitions for [~Tastypie Lib~] [~1.0.30~]
+// Type definitions for [~Tastypie Lib~] [~1.0.31~]
 // Project: [~ts-resource-tastypie~]
 // Definitions by: [~MARCOS WILLIAM FERRETTI~] <[~https://github.com/mw-ferretti~]>
 
@@ -375,9 +375,16 @@ export namespace Tastypie {
         public delete(id:number, params?:any): Promise<T> {
             let _self = this;
             _self._resource.working.status = true;
+
+            let endpoint = '/'+_self._resource.endpoint+id+'/';
+
+            if (_self._resource.endpoint.indexOf("<id>") !== -1){
+                endpoint = '/'+_self._resource.endpoint.replace("<id>", String(id));
+            }
+
             return axios({
               method:'delete',
-              url: '/'+_self._resource.endpoint+id+'/',
+              url: endpoint,
               baseURL: _self._resource.provider.url,
               responseType:'json',
               params: params,
@@ -406,9 +413,16 @@ export namespace Tastypie {
         public update(id:number, data:any): Promise<T> {
             let _self = this;
             _self._resource.working.status = true;
+
+            let endpoint = '/'+_self._resource.endpoint+id+'/';
+
+            if (_self._resource.endpoint.indexOf("<id>") !== -1){
+                endpoint = '/'+_self._resource.endpoint.replace("<id>", String(id));
+            }
+
             return axios({
               method:'patch',
-              url: '/'+_self._resource.endpoint+id+'/',
+              url: endpoint,
               baseURL: _self._resource.provider.url,
               responseType:'json',
               data: data,
@@ -755,7 +769,7 @@ export namespace Tastypie {
 
     export interface IModel {
         id:number;
-        save():Promise<any>;
+        save(obj?:any):Promise<any>;
         update(obj: any):Promise<any>;
         changeFile(field: string, event: any):Promise<any>;
         refresh():Promise<any>;
