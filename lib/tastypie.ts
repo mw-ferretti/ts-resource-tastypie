@@ -1,4 +1,4 @@
-// Type definitions for [~Tastypie Lib~] [~1.0.31~]
+// Type definitions for [~Tastypie Lib~] [~1.0.32~]
 // Project: [~ts-resource-tastypie~]
 // Definitions by: [~MARCOS WILLIAM FERRETTI~] <[~https://github.com/mw-ferretti~]>
 
@@ -828,7 +828,9 @@ export namespace Tastypie {
                 let reader = new FileReader();
                 reader.onload = function(loadEvent: any){
                     let paramFile = loadEvent.target.result;
-                    _self._resource.objects.update(_self.id, {field:paramFile}).then(function(data){
+                    let obj_param = {};
+                    obj_param[field] = paramFile
+                    _self._resource.objects.update(_self.id, obj_param).then(function(data){
                         clearTimeout(timeout);
                         _self.setData(data);
                         resolve(data);
