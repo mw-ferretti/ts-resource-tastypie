@@ -1,4 +1,4 @@
-// Type definitions for [~Tastypie Lib~] [~1.0.32~]
+// Type definitions for [~Tastypie Lib~] [~1.0.33~]
 // Project: [~ts-resource-tastypie~]
 // Definitions by: [~MARCOS WILLIAM FERRETTI~] <[~https://github.com/mw-ferretti~]>
 
@@ -813,6 +813,22 @@ export namespace Tastypie {
             return _self._resource.objects.update(_self.id, obj).then(
                 function(r: any){
                     _self.setData(r);
+                    return r;
+                }
+            );
+        }
+
+        public delete(): Promise<T> {
+            let _self = this;
+
+            if (!_self.id) return Tools.generate_exception('[Tastypie][Model][delete] This object has not been deleted.');
+
+            return _self._resource.objects.delete(_self.id).then(
+                function(r: any){
+                    let properties: Array<string> = Tools.getProperties(_self);
+                    for(let propertie of properties){
+                        _self[propertie] = null;
+                    }
                     return r;
                 }
             );
