@@ -1,4 +1,4 @@
-// Type definitions for [~Tastypie Lib~] [~1.0.33~]
+// Type definitions for [~Tastypie Lib~] [~1.0.34~]
 // Project: [~ts-resource-tastypie~]
 // Definitions by: [~MARCOS WILLIAM FERRETTI~] <[~https://github.com/mw-ferretti~]>
 
@@ -771,6 +771,7 @@ export namespace Tastypie {
         id:number;
         save(obj?:any):Promise<any>;
         update(obj: any):Promise<any>;
+        delete():Promise<any>;
         changeFile(field: string, event: any):Promise<any>;
         refresh():Promise<any>;
         getProperties():Array<string>;
