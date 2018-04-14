@@ -134,6 +134,7 @@ export declare namespace Tastypie {
         id: number;
         save(obj?: any): Promise<any>;
         update(obj: any): Promise<any>;
+        delete(): Promise<any>;
         changeFile(field: string, event: any): Promise<any>;
         refresh(): Promise<any>;
         getProperties(): Array<string>;
@@ -147,6 +148,7 @@ export declare namespace Tastypie {
         readonly resource: Resource<T>;
         save(obj?: any): Promise<T>;
         update(obj: any): Promise<T>;
+        delete(): Promise<T>;
         changeFile(field: string, event: any): Promise<T>;
         refresh(): Promise<T>;
         getProperties(): Array<string>;
