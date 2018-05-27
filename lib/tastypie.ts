@@ -1,4 +1,4 @@
-// Type definitions for [~Tastypie Lib~] [~1.0.37~]
+// Type definitions for [~Tastypie Lib~] [~1.0.38~]
 // Project: [~ts-resource-tastypie~]
 // Definitions by: [~MARCOS WILLIAM FERRETTI~] <[~https://github.com/mw-ferretti~]>
 
@@ -527,7 +527,11 @@ export namespace Tastypie {
                     let _obj_data: any;
 
                     if(result.data.hasOwnProperty('meta') && result.data.hasOwnProperty('objects')){
-                        _obj_data = result.data.objects[0];
+                        if(result.data.objects.length >= 1){
+                            _obj_data = result.data.objects[0];
+                        }else{
+                            _obj_data = null;
+                        }
                     }else{
                         _obj_data = result.data;
                     }
