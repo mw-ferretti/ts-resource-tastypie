@@ -1,4 +1,4 @@
-// Type definitions for [~Tastypie Lib~] [~1.0.38~]
+// Type definitions for [~Tastypie Lib~] [~1.0.39~]
 // Project: [~ts-resource-tastypie~]
 // Definitions by: [~MARCOS WILLIAM FERRETTI~] <[~https://github.com/mw-ferretti~]>
 
@@ -898,11 +898,14 @@ export namespace Tastypie {
             let data: any = {};
             let properties: Array<string> = Tools.getProperties(_self);
             for(let propertie of properties){
-                if(_self[propertie] instanceof Model){
-                    data[propertie] = _self[propertie].getData();
-                }else{
-                    data[propertie] = _self[propertie];
+                try {
+                    if(_self[propertie] instanceof Model){
+                        data[propertie] = _self[propertie].getData();
+                    }else{
+                        data[propertie] = _self[propertie];
+                    }
                 }
+                catch (e) {}
             }
             return data;
         }
@@ -911,7 +914,10 @@ export namespace Tastypie {
             let _self:Model<T> = this;
             let properties: Array<string> = Tools.getProperties(data);
             for(let propertie of properties){
-                _self[propertie] = data[propertie];
+                try {
+                    _self[propertie] = data[propertie];
+                }
+                catch (e) {}
             }
         }
     }
