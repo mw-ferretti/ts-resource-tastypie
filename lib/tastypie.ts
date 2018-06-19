@@ -1,4 +1,4 @@
-// Type definitions for [~Tastypie Lib~] [~1.0.39~]
+// Type definitions for [~Tastypie Lib~] [~1.0.40~]
 // Project: [~ts-resource-tastypie~]
 // Definitions by: [~MARCOS WILLIAM FERRETTI~] <[~https://github.com/mw-ferretti~]>
 
@@ -259,6 +259,31 @@ export namespace Tastypie {
                     if(default_provider.name == provider.name){
                         this.setDefault(provider.name);
                     }
+                    found = true;
+                    break;
+                }
+            }
+
+            if(!found){
+              throw new TypeError("[Tastypie][Provider][setAuth] Provider '" + providerName + "' not found.");
+            }
+        }
+
+        public static removeAuth(providerName: string): void {
+            let default_provider: Provider = this.getDefault();
+            let found: Boolean = false;
+
+            for (let provider of this._providers){
+                if(providerName == provider.name){
+
+                    if(provider.headers.hasOwnProperty('Authorization')){
+                        delete provider.headers['Authorization'];
+
+                        if(default_provider.name == provider.name){
+                            this.setDefault(provider.name);
+                        }
+                    }
+
                     found = true;
                     break;
                 }

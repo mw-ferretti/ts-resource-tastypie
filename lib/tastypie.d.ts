@@ -53,6 +53,7 @@ export declare namespace Tastypie {
         static setDefault(name: string): void;
         static getDefault(): Provider;
         static setAuth(providerName: string, username: string, apikey: string): void;
+        static removeAuth(providerName: string): void;
     }
     class Resource<T> {
         private _endpoint;
