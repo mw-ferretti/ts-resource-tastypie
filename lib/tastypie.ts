@@ -1,4 +1,4 @@
-// Type definitions for [~Tastypie Lib~] [~1.0.40~]
+// Type definitions for [~Tastypie Lib~] [~1.0.41~]
 // Project: [~ts-resource-tastypie~]
 // Definitions by: [~MARCOS WILLIAM FERRETTI~] <[~https://github.com/mw-ferretti~]>
 
@@ -105,7 +105,7 @@ export namespace Tastypie {
                 console.log('-----------------------');
                 console.log(error.response.statusText);
                 console.log(moduleName.concat(' ', 'DATA RESP.:'));
-                console.log(error.response.data);
+                console.log(error.response);
                 console.log('-----------------------');
                 console.log('');
             }
@@ -328,6 +328,10 @@ export namespace Tastypie {
 
         public get defaults(): any {
             return this._defaults;
+        }
+
+        public set defaults(p: any) {
+            this._defaults = p;
         }
 
         public get model(): any {
