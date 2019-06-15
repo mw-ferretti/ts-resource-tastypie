@@ -1,4 +1,4 @@
-// Type definitions for [~Tastypie Lib~] [~1.0.43~]
+// Type definitions for [~Tastypie Lib~] [~1.0.44~]
 // Project: [~ts-resource-tastypie~]
 // Definitions by: [~MARCOS WILLIAM FERRETTI~] <[~https://github.com/mw-ferretti~]>
 
