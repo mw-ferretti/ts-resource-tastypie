@@ -82,7 +82,7 @@ export declare namespace Tastypie {
         get(id: number, params?: any): Promise<T>;
         delete(id: number, params?: any): Promise<T>;
         update(id: number, data: any): Promise<T>;
-        create(data: {}): Promise<any>;
+        create(data: {}): Promise<T>;
         save(data: any): Promise<T>;
         find(filter?: {}): Promise<Paginator<T>>;
         findOne(params?: any): Promise<T>;

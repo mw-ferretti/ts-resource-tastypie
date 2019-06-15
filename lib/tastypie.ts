@@ -1,4 +1,4 @@
-// Type definitions for [~Tastypie Lib~] [~1.0.44~]
+// Type definitions for [~Tastypie Lib~] [~1.0.45~]
 // Project: [~ts-resource-tastypie~]
 // Definitions by: [~MARCOS WILLIAM FERRETTI~] <[~https://github.com/mw-ferretti~]>
 
@@ -98,21 +98,32 @@ export namespace Tastypie {
 
         public static trigger_http_exception(moduleName: string, error: any): any {
             error = error || {};
-            error.response = error.response || {};
-            error.response.statusText = moduleName.concat(' HTTP_', error.response.status, ' - ', error.response.statusText || ' Server Not Responding.');
+
             if (typeof(console) == "object") {
-                console.log('');
-                console.log('-----------------------');
-                console.log(error.response.statusText);
-                console.log(moduleName.concat(' ', 'DATA RESP.:'));
-                console.log(error.response);
-                console.log('-----------------------');
-                console.log('');
+                console.log('-----');
+                if (error.response) {
+                    console.log(moduleName.concat(' HTTP_', error.response.status, ' - ', error.response.statusText || ' No statusText.', ' DATA RESP.:'));
+                    console.log(error.response.data);
+                    console.log(error.response.headers);
+                } else if (error.request) {
+                    console.log(moduleName.concat(' ', 'RESQUEST DATA RESP.:'));
+                    console.log(error.request);
+                } else {
+                    console.log(moduleName.concat(' ', 'MESSAGE DATA RESP.:'));
+                }
+                if(error.message) console.log('Error: ', error.message);
+                if(error.config) console.log('Config: ', error.config);
+                console.log('-----');
             }
 
-            let fn = HttpExceptions.get(+error.response.status);
-            if(fn) fn.callback(error.response);
-            return Promise.reject(error.response);
+            let fn = null;
+            if(error.response){
+                try{
+                  fn = HttpExceptions.get(+error.response.status);
+                }catch (error) {}
+            }
+            if(fn) fn.callback(error);
+            return Promise.reject(error);
         }
 
         public static getProperties(data: any): Array<string> {
@@ -477,7 +488,7 @@ export namespace Tastypie {
             );
         }
 
-        public create(data: {}): Promise<any> {
+        public create(data: {}): Promise<T> {
             let _self = this;
             _self._resource.working.status = true;
             return axios({
