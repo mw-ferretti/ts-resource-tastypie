@@ -1,4 +1,4 @@
-// Type definitions for [~Tastypie Lib~] [~1.0.45~]
+// Type definitions for [~Tastypie Lib~] [~1.0.46~]
 // Project: [~ts-resource-tastypie~]
 // Definitions by: [~MARCOS WILLIAM FERRETTI~] <[~https://github.com/mw-ferretti~]>
 
@@ -560,7 +560,7 @@ export namespace Tastypie {
               url: '/'+_self._resource.endpoint,
               baseURL: _self._resource.provider.url,
               responseType:'json',
-              params: params,
+              params: Tools.merge_obj(_self._resource.defaults, params),
               headers: _self._resource.provider.headers
             }).then(
                 function(result: any){
