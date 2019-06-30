@@ -1,4 +1,4 @@
-// Type definitions for [~Tastypie Lib~] [~1.0.47~]
+// Type definitions for [~Tastypie Lib~] [~1.0.48~]
 // Project: [~ts-resource-tastypie~]
 // Definitions by: [~MARCOS WILLIAM FERRETTI~] <[~https://github.com/mw-ferretti~]>
 
@@ -551,13 +551,19 @@ export namespace Tastypie {
             );
         }
 
-        public findOne(params?:any): Promise<T> {
+        public findOne(params?:any, no_slash?: boolean): Promise<T> {
             let _self = this;
             _self._resource.working.status = true;
 
+            let url = '/'+_self._resource.endpoint;
+
+            if(no_slash){
+                url = url.slice(0, -1);
+            }
+
             return axios({
               method:'get',
-              url: '/'+_self._resource.endpoint.slice(0, -1),
+              url: url,
               baseURL: _self._resource.provider.url,
               responseType:'json',
               params: Tools.merge_obj(_self._resource.defaults, params),

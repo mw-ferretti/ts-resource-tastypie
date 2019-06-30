@@ -85,7 +85,7 @@ export declare namespace Tastypie {
         create(data: {}): Promise<T>;
         save(data: any): Promise<T>;
         find(filter?: {}): Promise<Paginator<T>>;
-        findOne(params?: any): Promise<T>;
+        findOne(params?: any, no_slash?: boolean): Promise<T>;
     }
     class PageMeta {
         total_count: number;
