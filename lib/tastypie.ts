@@ -1,4 +1,4 @@
-// Type definitions for [~Tastypie Lib~] [~1.0.49~]
+// Type definitions for [~Tastypie Lib~] [~1.0.50~]
 // Project: [~ts-resource-tastypie~]
 // Definitions by: [~MARCOS WILLIAM FERRETTI~] <[~https://github.com/mw-ferretti~]>
 
@@ -318,12 +318,14 @@ export namespace Tastypie {
         constructor(endpoint: string, p?: {defaults?: any, provider?: string, model?: any}){
 
             if(endpoint[endpoint.length -1] !== '/'){
-                this._endpoint = `${endpoint}/`;
+                endpoint = `${endpoint}/`;
             }
 
             if(endpoint.startsWith("/")){
-                this._endpoint = this._endpoint.substring(1);
+                endpoint = endpoint.substring(1);
             }
+
+            this._endpoint = endpoint;
 
             if(p){
                 this._defaults = p.defaults || {};
