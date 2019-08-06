@@ -1,4 +1,4 @@
-// Type definitions for [~Tastypie Lib~] [~1.0.50~]
+// Type definitions for [~Tastypie Lib~] [~1.0.51~]
 // Project: [~ts-resource-tastypie~]
 // Definitions by: [~MARCOS WILLIAM FERRETTI~] <[~https://github.com/mw-ferretti~]>
 
@@ -856,7 +856,7 @@ export namespace Tastypie {
 
         public save(obj?:any): Promise<T> {
             let _self = this;
-            let to_save = (obj || _self.getData());
+            let to_save = obj ? Tools.merge_obj(_self.getData(), obj) : _self.getData();
             return _self._resource.objects.save(to_save).then(
                 function(r: any){
                     _self.setData(r);
