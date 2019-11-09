@@ -1,4 +1,4 @@
-// Type definitions for [~Tastypie Lib~] [~1.0.51~]
+// Type definitions for [~Tastypie Lib~] [~1.0.52~]
 // Project: [~ts-resource-tastypie~]
 // Definitions by: [~MARCOS WILLIAM FERRETTI~] <[~https://github.com/mw-ferretti~]>
 
@@ -442,13 +442,33 @@ export namespace Tastypie {
                 function(result: any){
                     if(_self._resource.model){
                         let _obj = new _self._resource.model(result.data);
-                        _self._resource.working.status = false;
-                        if(_self._resource.page.initialized) _self._resource.page.refresh();
-                        return _obj;
+
+                        if(_self._resource.page.initialized){
+                            return _self._resource.page.refresh().then(() => {
+                                _self._resource.working.status = false;
+                                return _obj;
+                            }).catch(() => {
+                                _self._resource.working.status = false;
+                                return _obj;
+                            });
+                        }else{
+                            _self._resource.working.status = false;
+                            return _obj;
+                        }
                     }else{
-                        _self._resource.working.status = false;
-                        if(_self._resource.page.initialized) _self._resource.page.refresh();
-                        return result.data;
+
+                        if(_self._resource.page.initialized){
+                            return _self._resource.page.refresh().then(() => {
+                                _self._resource.working.status = false;
+                                return result.data;
+                            }).catch(() => {
+                                _self._resource.working.status = false;
+                                return result.data;
+                            });
+                        }else{
+                            _self._resource.working.status = false;
+                            return result.data;
+                        }
                     }
                 }
             ).catch(
@@ -480,13 +500,33 @@ export namespace Tastypie {
                 function(result: any){
                     if(_self._resource.model){
                         let _obj = new _self._resource.model(result.data);
-                        _self._resource.working.status = false;
-                        if(_self._resource.page.initialized) _self._resource.page.refresh();
-                        return _obj;
+
+                        if(_self._resource.page.initialized){
+                            return _self._resource.page.refresh().then(() => {
+                                _self._resource.working.status = false;
+                                return _obj;
+                            }).catch(() => {
+                                _self._resource.working.status = false;
+                                return _obj;
+                            });
+                        }else{
+                            _self._resource.working.status = false;
+                            return _obj;
+                        }
                     }else{
-                        _self._resource.working.status = false;
-                        if(_self._resource.page.initialized) _self._resource.page.refresh();
-                        return result.data;
+
+                        if(_self._resource.page.initialized){
+                            return _self._resource.page.refresh().then(() => {
+                                _self._resource.working.status = false;
+                                return result.data;
+                            }).catch(() => {
+                                _self._resource.working.status = false;
+                                return result.data;
+                            });
+                        }else{
+                            _self._resource.working.status = false;
+                            return result.data;
+                        }
                     }
                 }
             ).catch(
@@ -511,13 +551,33 @@ export namespace Tastypie {
                 function(result: any){
                     if(_self._resource.model){
                         let _obj = new _self._resource.model(result.data);
-                        _self._resource.working.status = false;
-                        if(_self._resource.page.initialized) _self._resource.page.refresh();
-                        return _obj;
+
+                        if(_self._resource.page.initialized){
+                            return _self._resource.page.refresh().then(() => {
+                                _self._resource.working.status = false;
+                                return _obj;
+                            }).catch(() => {
+                                _self._resource.working.status = false;
+                                return _obj;
+                            });
+                        }else{
+                            _self._resource.working.status = false;
+                            return _obj;
+                        }
                     }else{
-                        _self._resource.working.status = false;
-                        if(_self._resource.page.initialized) _self._resource.page.refresh();
-                        return result.data;
+
+                        if(_self._resource.page.initialized){
+                            return _self._resource.page.refresh().then(() => {
+                                _self._resource.working.status = false;
+                                return result.data;
+                            }).catch(() => {
+                                _self._resource.working.status = false;
+                                return result.data;
+                            });
+                        }else{
+                            _self._resource.working.status = false;
+                            return result.data;
+                        }
                     }
                 }
             ).catch(
@@ -892,6 +952,20 @@ export namespace Tastypie {
                     return r;
                 }
             );
+        }
+
+        public setLocalFile(field: string, event: any): void {
+
+            if (!event.target.files || !event.target.files[0]){
+                return;
+            }
+
+            let _self = this;
+            let reader = new FileReader();
+            reader.onload = function(loadEvent: any){
+                _self[field] = loadEvent.target.result
+            }
+            reader.readAsDataURL(event.target.files[0]);
         }
 
         public changeFile(field: string, event: any): Promise<T> {

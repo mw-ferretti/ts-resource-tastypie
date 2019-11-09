@@ -150,6 +150,7 @@ export declare namespace Tastypie {
         save(obj?: any): Promise<T>;
         update(obj: any): Promise<T>;
         delete(): Promise<T>;
+        setLocalFile(field: string, event: any): void;
         changeFile(field: string, event: any): Promise<T>;
         changeFileBase64(field: string, fileBase64: any): Promise<T>;
         refresh(): Promise<T>;
