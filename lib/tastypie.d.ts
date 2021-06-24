@@ -2,8 +2,10 @@ export declare namespace Tastypie {
     class Working {
         private _status;
         private static _status;
-        status: boolean;
-        static status: boolean;
+        get status(): boolean;
+        set status(p: boolean);
+        static get status(): boolean;
+        static set status(p: boolean);
     }
     class HttpExceptions {
         httpCode: number;
@@ -39,13 +41,13 @@ export declare namespace Tastypie {
             apikey?: string;
             headers?: {};
         });
-        readonly name: string;
-        readonly url: string;
-        readonly protocol: string;
-        readonly domain: string;
-        readonly username: string;
-        readonly apikey: string;
-        readonly headers: {};
+        get name(): string;
+        get url(): string;
+        get protocol(): string;
+        get domain(): string;
+        get username(): string;
+        get apikey(): string;
+        get headers(): {};
         concatDomain(p: string): string;
         concatSubDomain(p: string): string;
         static add(...p: Array<Provider>): void;
@@ -68,13 +70,16 @@ export declare namespace Tastypie {
             provider?: string;
             model?: any;
         });
-        readonly endpoint: string;
-        readonly provider: Provider;
-        defaults: any;
-        readonly model: any;
-        readonly objects: Objects<T>;
-        page: Paginator<T>;
-        working: Working;
+        get endpoint(): string;
+        get provider(): Provider;
+        get defaults(): any;
+        set defaults(p: any);
+        get model(): any;
+        get objects(): Objects<T>;
+        get page(): Paginator<T>;
+        set page(p: Paginator<T>);
+        get working(): Working;
+        set working(p: Working);
     }
     class Objects<T> {
         private _resource;
@@ -113,13 +118,13 @@ export declare namespace Tastypie {
         private _defaults;
         private _initialized;
         constructor(p: Resource<T>, obj?: any, filters?: any);
-        readonly meta: PageMeta;
-        readonly objects: Array<T>;
-        readonly index: number;
-        readonly length: number;
-        readonly range: Array<number>;
-        readonly initialized: boolean;
-        readonly resource: Resource<T>;
+        get meta(): PageMeta;
+        get objects(): Array<T>;
+        get index(): number;
+        get length(): number;
+        get range(): Array<number>;
+        get initialized(): boolean;
+        get resource(): Resource<T>;
         private setPage;
         private getPage;
         private changePage;
@@ -146,7 +151,7 @@ export declare namespace Tastypie {
         private _resource;
         id: number;
         constructor(resource: Resource<T>, _obj?: any);
-        readonly resource: Resource<T>;
+        get resource(): Resource<T>;
         save(obj?: any): Promise<T>;
         update(obj: any): Promise<T>;
         delete(): Promise<T>;

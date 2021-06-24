@@ -1,12 +1,9 @@
 {
   "name": "ts-resource-tastypie",
-  "version": "1.0.52",
+  "version": "1.0.53",
   "description": "REST Typescript client for Django-Tastypie or equivalent schema.",
   "main": "./lib/tastypie.js",
   "types": "./lib/tastypie.d.ts",
-  "dependencies": {
-    "axios": "^0.21.1"
-  },
   "devDependencies": {
     "typescript": "^3.5.3"
   },
@@ -28,5 +25,8 @@
   "bugs": {
     "url": "https://github.com/mw-ferretti/ts-resource-tastypie/issues"
   },
-  "homepage": "https://github.com/mw-ferretti/ts-resource-tastypie#readme"
+  "homepage": "https://github.com/mw-ferretti/ts-resource-tastypie#readme",
+  "dependencies": {
+    "axios": "^0.21.1"
+  }
 }
