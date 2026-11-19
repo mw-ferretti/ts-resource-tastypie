@@ -1,6 +1,11 @@
 # Ts Resource Tastypie
 [RESTful](http://www.ibm.com/developerworks/library/ws-restful/) TypeScript client for [Django-Tastypie](https://django-tastypie.readthedocs.org/en/latest/) or equivalent schema.
 
+> **Legacy project**
+>
+> TypeScript evolution of my earlier AngularJS REST client for Django Tastypie and compatible APIs.
+> This repository is preserved for historical reference and is no longer actively maintained.
+
 Features:
 > - Pagination
 > - Complete CRUD
